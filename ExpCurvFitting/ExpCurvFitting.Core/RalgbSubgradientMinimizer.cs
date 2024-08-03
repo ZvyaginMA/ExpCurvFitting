@@ -38,7 +38,7 @@ namespace ExpCurvFitting.Core
             }
 
             
-            return new MinimizationWithLineSearchResult(objective, 0, ExitCondition.AbsoluteGradient, totalLineSearchSteps, iterationsWithNontrivialLineSearch);
+            return new MinimizationWithLineSearchResult(objective, 0, ExitCondition.AbsoluteGradient, 0, 0);
         }
 
         static void ValidateGradient(IObjectiveFunctionEvaluation objective)
@@ -58,11 +58,6 @@ namespace ExpCurvFitting.Core
             {
                 throw new EvaluationException("Non-finite objective function returned.", objective);
             }
-        }
-
-        public MinimizationResult FindMinimum(IObjectiveFunction objective, Vector<double> initialGuess)
-        {
-            throw new NotImplementedException();
         }
     }
 }

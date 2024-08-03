@@ -1,12 +1,13 @@
 ﻿using MathNet.Numerics.LinearAlgebra;
+using MathNet.Numerics.Optimization;
 
 namespace ExpCurvFitting.Core;
 public record Tol
 {
-    public Vector<double> XLowerBound { get; set; }
-    public Vector<double> XUpperBound { get; set; }
-    public Vector<double> YLowerBound { get; set; }
-    public Vector<double> YUpperBound { get; set; }
+    public Vector<double> XLowerBound { get; init; }
+    public Vector<double> XUpperBound { get; init; }
+    public Vector<double> YLowerBound { get; init; }
+    public Vector<double> YUpperBound { get; init; }
 
     public Vector<double> XMid => 0.5 * (XLowerBound + XUpperBound);
     public Vector<double> XRad => 0.5 * (XUpperBound - XLowerBound);
@@ -22,16 +23,41 @@ public record Tol
 
     public double TolValue(Vector<double> a, Vector<double> b)
     {
-        return 0;
+        return CalcGeneratrix(a, b).Min();
+    }
+
+    private Vector<double> CalcGeneratrix(Vector<double> a, Vector<double> b)
+    {
+        var result = Vector<double>.Build.Dense(YRad.Count);
+        for(int i = 0; i < YRad.Count; i++)
+        {
+            var eLb = (-XLowerBound[i] * b).PointwiseExp().DotProduct(a);
+            var eUb = (-XUpperBound[i] * b).PointwiseExp().DotProduct(a);
+            result[i] = YRad[i] - 0.5 * (eLb - eUb)
+            -  Math.Abs(YMid[i] - 0.5 * (eLb + eUb));
+        }
+        return result;
     }
 
     public Vector<double> GradA(Vector<double> a, Vector<double> b)
     {
-        return null;
+        var indexMin = CalcGeneratrix(a, b).MinimumIndex();
+        var eLb = (-XLowerBound[indexMin] * b).PointwiseExp();
+        var eUb = (-XUpperBound[indexMin] * b).PointwiseExp();
+        var grad = - 0.5 * (eLb - eUb) 
+                   - 0.5 * (eLb + eUb) 
+                   * Math.Sign(0.5 * (eLb + eUb).DotProduct(a) - YMid[indexMin]);
+        return grad;
     }
     public Vector<double> GradB(Vector<double> a, Vector<double> b)
     {
-        return null;
+        var indexMin = CalcGeneratrix(a, b).MinimumIndex();
+        var eLb = (-XLowerBound[indexMin] * b).PointwiseExp();
+        var eUb = (-XUpperBound[indexMin] * b).PointwiseExp();
+        var grad = 0.5 * (XLowerBound[indexMin] * eLb - XUpperBound[indexMin] * eUb).PointwiseMultiply(a)
+                 + 0.5 * (XLowerBound[indexMin] * eLb + XUpperBound[indexMin] * eUb).PointwiseMultiply(a) 
+                 * Math.Sign(0.5 * (eLb + eUb).DotProduct(a) - YMid[indexMin]);
+        return grad;
     }
     public Vector<double> Grad(Vector<double> x0)
     {
@@ -40,5 +66,10 @@ public record Tol
     public double TolValue(Vector<double> x0)
     {
         return 0;
+    }
+
+    public void Optimization(IUnconstrainedMinimizer minimizer, Vector<double> x0)
+    {
+
     }
 }
