@@ -18,7 +18,7 @@ jobs:
       with:
         dotnet-version: 8.0.x
     - name: Restore dependencies
-      run: dotnet restore ExpCurvFitting/ExpCurvFitting/ExpCurvFitting.sln 
+      run: dotnet restore ExpCurvFitting/ExpCurvFitting.sln 
     - name: Build
       run: dotnet build --no-restore ExpCurvFitting/ExpCurvFitting/ExpCurvFitting.sln 
     - name: Test
