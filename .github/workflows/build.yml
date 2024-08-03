@@ -22,4 +22,4 @@ jobs:
     - name: Build
       run: dotnet build --no-restore ExpCurvFitting/ExpCurvFitting.sln 
     - name: Test
-      run: dotnet test --no-build ExpCurvFitting/ExpCurvFitting/ExpCurvFitting.sln 
+      run: dotnet test --no-build ExpCurvFitting/ExpCurvFitting.sln 
