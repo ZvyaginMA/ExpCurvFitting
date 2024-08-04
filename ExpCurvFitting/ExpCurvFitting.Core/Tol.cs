@@ -25,7 +25,7 @@ public record Tol
     {
         return CalcGeneratrix(a, b).Min();
     }
-
+    
     private Vector<double> CalcGeneratrix(Vector<double> a, Vector<double> b)
     {
         var result = Vector<double>.Build.Dense(YRad.Count);
@@ -38,7 +38,7 @@ public record Tol
         }
         return result;
     }
-
+    
     public Vector<double> GradA(Vector<double> a, Vector<double> b)
     {
         var indexMin = CalcGeneratrix(a, b).MinimumIndex();
@@ -48,6 +48,15 @@ public record Tol
                    - 0.5 * (eLb + eUb) 
                    * Math.Sign(0.5 * (eLb + eUb).DotProduct(a) - YMid[indexMin]);
         return grad;
+    }
+    
+    private Vector<double> GradA(Vector<double> x0)
+    {
+        return GradA(x0.SubVector(0, x0.Count / 2), x0.SubVector(x0.Count / 2, x0.Count / 2));
+    }
+    private Vector<double> GradB(Vector<double> x0)
+    {
+        return GradB(x0.SubVector(0, x0.Count / 2), x0.SubVector(x0.Count / 2, x0.Count / 2));
     }
     public Vector<double> GradB(Vector<double> a, Vector<double> b)
     {
@@ -61,15 +70,35 @@ public record Tol
     }
     public Vector<double> Grad(Vector<double> x0)
     {
-        return null;
+        var result = Vector<double>.Build.Dense(x0.Count);
+        result.SetSubVector(0, x0.Count / 2, GradA(x0));
+        result.SetSubVector(x0.Count/2, x0.Count / 2, GradB(x0));
+        return result;
     }
     public double TolValue(Vector<double> x0)
     {
-        return 0;
+        return TolValue(x0.SubVector(0, x0.Count / 2), x0.SubVector(x0.Count / 2, x0.Count / 2));
     }
 
-    public void Optimization(IUnconstrainedMinimizer minimizer, Vector<double> x0)
+    public OptimizationResult Optimization(IUnconstrainedMinimizer minimizer, Vector<double> x0)
     {
+        Func<Vector<double>, (double, Vector<double>)> functional = (x) => new( - TolValue(x), - Grad(x));
+        var objective = ObjectiveFunction.Gradient(functional);
+        var result = minimizer.FindMinimum(objective, x0);
+        return new OptimizationResult
+        {
+            TolValue = - result.FunctionInfoAtMinimum.Value,
+            A = result.MinimizingPoint.SubVector(0, x0.Count / 2),
+            B = result.MinimizingPoint.SubVector(x0.Count / 2, x0.Count / 2),
+            GradL2Norm = result.FunctionInfoAtMinimum.Gradient.L2Norm()
+        };
+    }
 
+    public OptimizationResult Optimization(IUnconstrainedMinimizer minimizer, Vector<double> A, Vector<double> B)
+    {
+        var x0 = Vector<double>.Build.Dense(A.Count * 2);
+        x0.SetSubVector(0, A.Count, A);
+        x0.SetSubVector(A.Count, A.Count, B);
+        return Optimization(minimizer, x0);
     }
 }
