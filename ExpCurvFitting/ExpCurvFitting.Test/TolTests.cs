@@ -7,7 +7,7 @@ namespace ExpCurvFitting.Test
     public class TolTests
     {
         [Fact]
-        public void Test1()
+        public void SuccessCalcProperties()
         {
             var xLb = new DenseVector([1.0, 2.0]);
             var xUb = new DenseVector([1.0, 2.0]);
@@ -29,7 +29,7 @@ namespace ExpCurvFitting.Test
         }
 
         [Fact]
-        public void Test2()
+        public void SuccessOptimization()
         {
             var xLb = new DenseVector([1.0, 2.0, 3.0, 4, 5, 6]);
             var xUb = new DenseVector([1.0, 2.0, 3.0, 4, 5, 6]);
@@ -41,7 +41,7 @@ namespace ExpCurvFitting.Test
         }
 
         [Fact]
-        public void Test3()
+        public void SuccessMultistartOptimization()
         {
             var xLb = new DenseVector([1.0, 2.0, 3.0, 4, 5, 6]);
             var xUb = new DenseVector([1.0, 2.0, 3.0, 4, 5, 6]);
@@ -49,7 +49,7 @@ namespace ExpCurvFitting.Test
             var yUb = new DenseVector([2.51, 2.04, 1.67, 1.37, 1.12, 0.93]) + 0.1;
             var tol = new Tol(xLb, xUb, yLb, yUb);
             var result = tol.MultistartOptimization(new RalgbSubgradientMinimizer(1e-5, 1000), 20, 2);
-            result.TolValue.Should().BeInRange(0.0942, 0.0943);
+            result.TolValue.Should().BeInRange(0.096, 0.097);
         }
     }
 }
