@@ -1,5 +1,6 @@
 ﻿using MathNet.Numerics.LinearAlgebra;
 using MathNet.Numerics.Optimization;
+using System.Collections.Concurrent;
 
 namespace ExpCurvFitting.Core;
 public record Tol
@@ -100,5 +101,17 @@ public record Tol
         x0.SetSubVector(0, A.Count, A);
         x0.SetSubVector(A.Count, A.Count, B);
         return Optimization(minimizer, x0);
+    }
+
+    public OptimizationResult MultistartOptimization(IUnconstrainedMinimizer minimizer, int countStarts, int countExp)
+    {
+        var concurrentBag = new ConcurrentBag<OptimizationResult>();
+        Parallel.For(0, countStarts, x => 
+        { 
+            var initPoints = Vector<double>.Build.Random(countExp * 2);
+            var currentResult = Optimization(minimizer, initPoints);
+            concurrentBag.Add(currentResult);
+        });
+        return concurrentBag.OrderByDescending(r => r.TolValue).First();
     }
 }

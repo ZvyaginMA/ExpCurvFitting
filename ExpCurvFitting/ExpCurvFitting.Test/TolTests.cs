@@ -39,5 +39,17 @@ namespace ExpCurvFitting.Test
             var result = tol.Optimization(new RalgbSubgradientMinimizer(1e-5, 1000), new DenseVector([1.0, 2.0, 5.0, 4.0]));
             result.TolValue.Should().BeInRange(0.0942, 0.0943);
         }
+
+        [Fact]
+        public void Test3()
+        {
+            var xLb = new DenseVector([1.0, 2.0, 3.0, 4, 5, 6]);
+            var xUb = new DenseVector([1.0, 2.0, 3.0, 4, 5, 6]);
+            var yLb = new DenseVector([2.51, 2.04, 1.67, 1.37, 1.12, 0.93]) - 0.1;
+            var yUb = new DenseVector([2.51, 2.04, 1.67, 1.37, 1.12, 0.93]) + 0.1;
+            var tol = new Tol(xLb, xUb, yLb, yUb);
+            var result = tol.MultistartOptimization(new RalgbSubgradientMinimizer(1e-5, 1000), 20, 2);
+            result.TolValue.Should().BeInRange(0.0942, 0.0943);
+        }
     }
 }

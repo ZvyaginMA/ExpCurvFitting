@@ -43,6 +43,11 @@ namespace ExpCurvFitting.Core
             var xr = initialGuess;
             var f = objective.Value;
             var fr = objective.Value;
+            var q1 = 0.9;
+            var q2 = 1.1;
+            var alpha = 2.3;
+            var w = 1 / alpha - 1;
+            var h0 = 1.0;
             while (iteration < maxIterations)
             {
                 gradient1 = B.TransposeThisAndMultiply(gradient);
@@ -53,17 +58,12 @@ namespace ExpCurvFitting.Core
 
                 var dx = B.Multiply(gradient1 / gradient1.L2Norm());
                 var normadx = dx.L2Norm();
-                var h0 = 1.0;
                 var hs = h0;
                 var d = 1.0;
                 var cal = 0;
-                var alpha = 2.3;
                 var ncall = 0;
                 var deltax = 0.0;
-                var q1 = 0.9;
-                var q2 = 1.1;
-                var w = 1 / alpha - 1;
-
+                
                 while (d > 0 && cal <= 500)
                 {
                     x = x - hs * dx;
