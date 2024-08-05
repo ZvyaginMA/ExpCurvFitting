@@ -1,0 +1,28 @@
+﻿@page "/calculation"
+@rendermode InteractiveServer
+@using Microsoft.AspNetCore.Components.Forms
+@using ExpCurvFitting.Application
+@inject ExcelService _excelService
+
+
+<PageTitle>Curve fitting</PageTitle>
+
+<h1>Восстановление полинома из экспонент</h1>
+
+<InputFile OnChange="HandleSelected" MaxAllowedSize="10485760" />
+
+@code {
+    private async Task HandleSelected(InputFileChangeEventArgs e)
+    {
+        try
+        {
+            MemoryStream ms = new MemoryStream();
+            await e.File.OpenReadStream().CopyToAsync(ms);
+            var result = _excelService.LoadDateFromFile(ms);
+        }
+        catch(Exception ex)
+        {
+            Console.WriteLine(ex);
+        }
+    }
+}
