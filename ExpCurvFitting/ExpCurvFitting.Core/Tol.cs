@@ -114,4 +114,22 @@ public record Tol
         });
         return concurrentBag.OrderByDescending(r => r.TolValue).First();
     }
+
+    public async Task<OptimizationResult> MultistartOptimization2(IUnconstrainedMinimizer minimizer, int countStarts, int countExp)
+    {
+        var concurrentBag = new ConcurrentBag<OptimizationResult>();
+        var tasks = new List<Task>();
+        for (int i = 0; i < countStarts; i++)
+        {
+            tasks.Add(Task.Run(() =>
+            {
+                var initPoints = Vector<double>.Build.Random(countExp * 2);
+                var currentResult = Optimization(minimizer, initPoints);
+                concurrentBag.Add(currentResult);
+            }));
+        }
+        await Task.WhenAll(tasks);
+        
+        return concurrentBag.OrderByDescending(r => r.TolValue).First();
+    }
 }
