@@ -1,5 +1,6 @@
 using ExpCurvFitting.Web.Components;
 using ExpCurvFitting.Application;
+using ExpCurvFitting.Core;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -7,6 +8,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 builder.Services.AddTransient<ExcelService>();
+builder.Services.AddTransient<ExpModel>();
 
 var app = builder.Build();
 

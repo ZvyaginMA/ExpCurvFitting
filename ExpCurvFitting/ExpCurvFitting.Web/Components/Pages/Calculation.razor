@@ -2,7 +2,9 @@
 @rendermode InteractiveServer
 @using Microsoft.AspNetCore.Components.Forms
 @using ExpCurvFitting.Application
+@using ExpCurvFitting.Core
 @inject ExcelService _excelService
+@inject ExpModel _expModel;
 
 
 <PageTitle>Curve fitting</PageTitle>
@@ -11,18 +13,128 @@
 
 <InputFile OnChange="HandleSelected" MaxAllowedSize="10485760" />
 
+
+@if (!IsLoading)
+{
+    <p>Загрузите данные</p>
+}
+else if (inputData == null)
+{
+    <p><em>Загрузка...</em></p>
+}
+else
+{
+    if (IsCalc == Status.NoStarted)
+    {
+        <p>Запустите расчет</p>
+        <tr>
+            <td>Количество экспонент</td>
+            <td><input type="number" @bind="numberOfExponents" /></td>
+        </tr>
+    }
+    else if (IsCalc == Status.InProgress)
+    {
+        <p><em>Расчет...</em></p>
+    }
+    else
+    {
+        <p>
+            <tr>Tol @modelResult.TolValue</tr>
+            <tr>RMSE @modelResult.Rmse</tr>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>a</th>
+                        <th>b</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in modelResult.GetPoints())
+                    {
+                        <tr>
+                            <td>@item.Item1</td>
+                            <td>@item.Item2</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </p>
+        <tr>
+            <td>Количество экспонент</td>
+            <td><input type="number" @bind="numberOfExponents" /></td>
+        </tr>
+        
+    }
+    <button @onclick="Calc" class="btn btn-primary">Начать расчет</button>
+
+    <p>@(inputData is not null ? $"Загружено {inputData.X.Length} точек" : "")</p>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>X</th>
+                <th>YMid</th>
+                <th>YRad</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in inputData!.GetPoints())
+            {
+                <tr>
+                    <td>@item.Item1</td>
+                    <td>@item.Item2</td>
+                    <td>@item.Item3</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+
 @code {
+    enum Status
+    {
+        NoStarted,
+        InProgress,
+        Done
+    };
+
+    private int numberOfExponents;
+    private ExcelService.Result inputData = null;
+    private ExpModel.Result modelResult = null;
+    private bool IsLoading;
+    private Status IsCalc = Status.NoStarted;
+
     private async Task HandleSelected(InputFileChangeEventArgs e)
     {
         try
         {
             MemoryStream ms = new MemoryStream();
+            IsLoading = true;
             await e.File.OpenReadStream().CopyToAsync(ms);
-            var result = _excelService.LoadDateFromFile(ms);
+            inputData = _excelService.LoadDateFromFile(ms);
         }
         catch(Exception ex)
         {
             Console.WriteLine(ex);
+        }
+    }
+
+    private async Task Calc()
+    {
+        try
+        {
+            if(numberOfExponents <= 0)
+            {
+                return;
+            }
+            IsCalc = Status.InProgress;
+            modelResult = await _expModel.Fit(inputData.X, inputData.YMid, inputData.X, numberOfExponents);
+            IsCalc = Status.Done;
+        }
+        catch (Exception ex)
+        {
+           Console.WriteLine(ex);
         }
     }
 }

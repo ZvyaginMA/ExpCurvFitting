@@ -27,6 +27,22 @@ public record Tol
         return CalcGeneratrix(a, b).Min();
     }
     
+    public record PenatlyOption
+    {
+        public Vector<double> ALb { get; init; }
+        public Vector<double> AUb { get; init; }
+        public Vector<double> BLb { get; init; }
+        public Vector<double> BUb { get; init; }
+    }
+    public double CalcPenatly(Vector<double> a, Vector<double> b, PenatlyOption penatlyOption)
+    {
+        var lowerPenA = (a - penatlyOption.ALb) - (a - penatlyOption.ALb).PointwiseAbs();
+        var upperPenA = (penatlyOption.AUb - a) - (penatlyOption.AUb - a).PointwiseAbs();
+        var lowerPenB = (b - penatlyOption.BLb) - (b - penatlyOption.BLb).PointwiseAbs();
+        var upperPenB = (penatlyOption.BUb - b) - (penatlyOption.BUb - b).PointwiseAbs();
+        return 0;
+    }
+
     private Vector<double> CalcGeneratrix(Vector<double> a, Vector<double> b)
     {
         var result = Vector<double>.Build.Dense(YRad.Count);
