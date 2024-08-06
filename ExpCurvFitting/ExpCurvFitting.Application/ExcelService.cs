@@ -1,11 +1,12 @@
 ﻿using OfficeOpenXml;
+using System.Collections;
 
 namespace ExpCurvFitting.Application
 {
     public class ExcelService
     {
         public ExcelService() {
-            
+
         }
 
         public Result LoadDateFromFile(Stream file)
@@ -23,7 +24,7 @@ namespace ExpCurvFitting.Application
             }
             if (x is not null
                 && yMid is not null
-                && yMid is not null) 
+                && yMid is not null)
             {
                 return new Result
                 {
@@ -48,6 +49,13 @@ namespace ExpCurvFitting.Application
             public double[] X { get; init; }
             public double[] YMid { get; init; }
             public double[] YRad { get; init; }
+
+            public IEnumerable<(double, double, double)> GetPoints()
+            {
+                for (int i = 0; i < X.Length; i++) {
+                    yield return new(X[i], YMid[i], YRad[i]);
+                }
+            }
         }
     }
 }
