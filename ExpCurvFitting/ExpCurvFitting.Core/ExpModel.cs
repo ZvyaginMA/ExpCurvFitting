@@ -10,7 +10,7 @@ public record ExpModel
     public async Task<Result> Fit(Vector<double> xLb, Vector<double> xUb, Vector<double> yLb, Vector<double> yUb, int numberOfExp)
     {
         var tol = new Tol(xLb, xUb, yLb, yUb);
-        var result = await tol.MultistartOptimization2(new RalgbSubgradientMinimizer(1e-12, 10000),100, numberOfExp);
+        var result = await tol.MultistartOptimization(new RalgbSubgradientMinimizer(1e-12, 10000),100, numberOfExp);
         return await Task.FromResult(new Result
         {
             TolValue = result.TolValue,

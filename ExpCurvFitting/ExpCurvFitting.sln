@@ -3,15 +3,13 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.10.35027.167
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExpCurvFitting.Core", "ExpCurvFitting.Core\ExpCurvFitting.Core.csproj", "{1F59DEDF-A0F0-495D-9FB5-0C8F80E9B826}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ExpCurvFitting.Core", "ExpCurvFitting.Core\ExpCurvFitting.Core.csproj", "{1F59DEDF-A0F0-495D-9FB5-0C8F80E9B826}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExpCurvFitting.Test", "ExpCurvFitting.Test\ExpCurvFitting.Test.csproj", "{15DDC312-C765-4374-86E5-19E495450E77}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ExpCurvFitting.Test", "ExpCurvFitting.Test\ExpCurvFitting.Test.csproj", "{15DDC312-C765-4374-86E5-19E495450E77}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExpCurvFitting.Cli", "ExpCurvFitting.Cli\ExpCurvFitting.Cli.csproj", "{3C314889-E883-4BC6-B37D-8B9117DB1CDC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ExpCurvFitting.Web", "ExpCurvFitting.Web\ExpCurvFitting.Web.csproj", "{E1F4759B-222B-4DF4-8E39-16B8D3E55427}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExpCurvFitting.Web", "ExpCurvFitting.Web\ExpCurvFitting.Web.csproj", "{E1F4759B-222B-4DF4-8E39-16B8D3E55427}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExpCurvFitting.Application", "ExpCurvFitting.Application\ExpCurvFitting.Application.csproj", "{021B3BEC-A802-4CDD-B016-8F879C0516A8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ExpCurvFitting.Application", "ExpCurvFitting.Application\ExpCurvFitting.Application.csproj", "{021B3BEC-A802-4CDD-B016-8F879C0516A8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -27,10 +25,6 @@ Global
 		{15DDC312-C765-4374-86E5-19E495450E77}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{15DDC312-C765-4374-86E5-19E495450E77}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{15DDC312-C765-4374-86E5-19E495450E77}.Release|Any CPU.Build.0 = Release|Any CPU
-		{3C314889-E883-4BC6-B37D-8B9117DB1CDC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{3C314889-E883-4BC6-B37D-8B9117DB1CDC}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{3C314889-E883-4BC6-B37D-8B9117DB1CDC}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{3C314889-E883-4BC6-B37D-8B9117DB1CDC}.Release|Any CPU.Build.0 = Release|Any CPU
 		{E1F4759B-222B-4DF4-8E39-16B8D3E55427}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{E1F4759B-222B-4DF4-8E39-16B8D3E55427}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E1F4759B-222B-4DF4-8E39-16B8D3E55427}.Release|Any CPU.ActiveCfg = Release|Any CPU

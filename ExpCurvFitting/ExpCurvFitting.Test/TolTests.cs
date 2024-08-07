@@ -41,9 +41,6 @@ namespace ExpCurvFitting.Test
             result.TolValue.Should().BeInRange(0.0942, 0.0943);
         }
 
-
-
-
         [Fact]
         public async Task SuccessMultistartOptimization()
         {
@@ -52,16 +49,7 @@ namespace ExpCurvFitting.Test
             var yLb = new DenseVector([2.51, 2.04, 1.67, 1.37, 1.12, 0.93]) - 0.1;
             var yUb = new DenseVector([2.51, 2.04, 1.67, 1.37, 1.12, 0.93]) + 0.1;
             var tol = new Tol(xLb, xUb, yLb, yUb);
-            Debug.WriteLine(DateTime.Now);
-            Debug.WriteLine(DateTime.Now.Millisecond);
-            var result = tol.MultistartOptimization(new RalgbSubgradientMinimizer(1e-5, 1000), 20, 2);
-            Debug.WriteLine(DateTime.Now);
-            Debug.WriteLine(DateTime.Now.Millisecond);
-
-            var result2 = await tol.MultistartOptimization2(new RalgbSubgradientMinimizer(1e-5, 1000), 20, 2);
-            Debug.WriteLine(DateTime.Now);
-            Debug.WriteLine(DateTime.Now.Millisecond);
-
+            var result = await tol.MultistartOptimization(new RalgbSubgradientMinimizer(1e-5, 1000), 20, 2);
             result.TolValue.Should().BeInRange(0.096, 0.097);
         }
     }
