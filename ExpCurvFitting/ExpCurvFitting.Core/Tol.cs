@@ -27,21 +27,6 @@ public record Tol
         return CalcGeneratrix(a, b).Min();
     }
     
-    public record PenatlyOption
-    {
-        public Vector<double> ALb { get; init; }
-        public Vector<double> AUb { get; init; }
-        public Vector<double> BLb { get; init; }
-        public Vector<double> BUb { get; init; }
-    }
-    public double CalcPenatly(Vector<double> a, Vector<double> b, PenatlyOption penatlyOption)
-    {
-        var lowerPenA = (a - penatlyOption.ALb) - (a - penatlyOption.ALb).PointwiseAbs();
-        var upperPenA = (penatlyOption.AUb - a) - (penatlyOption.AUb - a).PointwiseAbs();
-        var lowerPenB = (b - penatlyOption.BLb) - (b - penatlyOption.BLb).PointwiseAbs();
-        var upperPenB = (penatlyOption.BUb - b) - (penatlyOption.BUb - b).PointwiseAbs();
-        return 0;
-    }
 
     private Vector<double> CalcGeneratrix(Vector<double> a, Vector<double> b)
     {
@@ -97,6 +82,8 @@ public record Tol
         return TolValue(x0.SubVector(0, x0.Count / 2), x0.SubVector(x0.Count / 2, x0.Count / 2));
     }
 
+    #region
+
     public OptimizationResult Optimization(IUnconstrainedMinimizer minimizer, Vector<double> x0)
     {
         Func<Vector<double>, (double, Vector<double>)> functional = (x) => new( - TolValue(x), - Grad(x));
@@ -146,7 +133,34 @@ public record Tol
         }
         await Task.WhenAll(tasks);
         
-        var result = concurrentBag.OrderByDescending(r => r.TolValue).First();
-        return result with { Rmse = 0.1 };
+        var result = concurrentBag.OrderByDescending(r => r.TolValue).First() with { Rmse = 0.1 } ;
+        return result;
     }
+    #endregion
+
+    #region Penatly
+
+    public double CalcPenatly(Vector<double> a, Vector<double> b, PenatlyOptions penatlyOption)
+    {
+        var lowerPenA = (a - penatlyOption.ALb) - (a - penatlyOption.ALb).PointwiseAbs();
+        var upperPenA = (penatlyOption.AUb - a) - (penatlyOption.AUb - a).PointwiseAbs();
+        var lowerPenB = (b - penatlyOption.BLb) - (b - penatlyOption.BLb).PointwiseAbs();
+        var upperPenB = (penatlyOption.BUb - b) - (penatlyOption.BUb - b).PointwiseAbs();
+        return penatlyOption.CostA * (lowerPenA + upperPenA).Sum() + penatlyOption.CostB * (lowerPenB + upperPenB).Sum();
+    }
+
+    public Vector<double> GradAPenatly(Vector<double> a, Vector<double> b, PenatlyOptions penatlyOption)
+    {
+        var lowerPenA = (a - penatlyOption.ALb) - (a - penatlyOption.ALb).PointwiseAbs();
+        var upperPenA = (penatlyOption.AUb - a) - (penatlyOption.AUb - a).PointwiseAbs();
+        return -penatlyOption.CostA * (lowerPenA - upperPenA).PointwiseSign();
+    }
+
+    public Vector<double> GradBPenatly(Vector<double> a, Vector<double> b, PenatlyOptions penatlyOption)
+    {
+        var lowerPenB = (b - penatlyOption.BLb) - (b - penatlyOption.BLb).PointwiseAbs();
+        var upperPenB = (penatlyOption.BUb - b) - (penatlyOption.BUb - b).PointwiseAbs();
+        return -penatlyOption.CostB * (lowerPenB - upperPenB).PointwiseSign();
+    }
+    #endregion
 }

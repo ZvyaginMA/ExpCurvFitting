@@ -65,7 +65,15 @@ else
         </tr>
         
     }
-    <button @onclick="Calc" class="btn btn-primary">Начать расчет</button>
+    <tr>
+        <th>
+            <button @onclick="Calc" class="btn btn-primary">Начать расчет</button>
+        </th>
+        <th>
+            <button @onclick="SetPenatlyOptions" class="btn btn-primary">Задать границы и штрафы</button>
+        </th>
+    </tr>
+
 
     <p>@(inputData is not null ? $"Загружено {inputData.X.Length} точек" : "")</p>
 
@@ -104,6 +112,8 @@ else
     private ExpModel.Result modelResult = null;
     private bool IsLoading;
     private Status IsCalc = Status.NoStarted;
+    private PenatlyOptions? penatlyOptions = null;
+    private bool IsSettingPenatlyOptions;
 
     private async Task HandleSelected(InputFileChangeEventArgs e)
     {
@@ -118,6 +128,11 @@ else
         {
             Console.WriteLine(ex);
         }
+    }
+
+    private void SetPenatlyOptions()
+    {
+        penatlyOptions = new PenatlyOptions();
     }
 
     private async Task Calc()
