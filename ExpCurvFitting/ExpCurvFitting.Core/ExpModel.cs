@@ -20,12 +20,33 @@ public record ExpModel
         });
     }
 
+    public async Task<Result> Fit(Vector<double> xLb, Vector<double> xUb, Vector<double> yLb, Vector<double> yUb, PenatlyOptions penatlyOptions)
+    {
+        var tol = new TolWithPenatly(xLb, xUb, yLb, yUb, penatlyOptions);
+        var result = await tol.MultistartOptimization(new RalgbSubgradientMinimizer(1e-12, 10000), 100, penatlyOptions.ALb.Count);
+        return await Task.FromResult(new Result
+        {
+            TolValue = result.TolValue,
+            A = result.A.AsArray(),
+            B = result.B.AsArray(),
+            Rmse = result.Rmse,
+        });
+    }
+
     public async Task<Result> Fit(IEnumerable<double> x, IEnumerable<double> yMid, IEnumerable<double> yRad, int numberOfExp)
     {
         var xx = new DenseVector(x.ToArray());
         var yyMid = new DenseVector(x.ToArray());
         var yyRad = new DenseVector(x.ToArray());
         return await Fit(xx, xx, yyMid - yyMid, yyMid + yyMid, numberOfExp);
+    }
+
+    public async Task<Result> Fit(IEnumerable<double> x, IEnumerable<double> yMid, IEnumerable<double> yRad, PenatlyOptions penatlyOptions)
+    {
+        var xx = new DenseVector(x.ToArray());
+        var yyMid = new DenseVector(x.ToArray());
+        var yyRad = new DenseVector(x.ToArray());
+        return await Fit(xx, xx, yyMid - yyMid, yyMid + yyMid, penatlyOptions);
     }
 
     public void Pridict()

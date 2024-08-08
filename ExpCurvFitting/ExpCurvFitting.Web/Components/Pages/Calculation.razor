@@ -1,8 +1,9 @@
-﻿@page "/calculation"
+﻿@page "/expfitting"
 @rendermode InteractiveServer
 @using Microsoft.AspNetCore.Components.Forms
 @using ExpCurvFitting.Application
 @using ExpCurvFitting.Core
+@using ExpCurvFitting.Web.Models
 @inject ExcelService _excelService
 @inject ExpModel _expModel;
 
@@ -13,16 +14,7 @@
 
 <InputFile OnChange="HandleSelected" MaxAllowedSize="10485760" />
 
-
-@if (!IsLoading)
-{
-    <p>Загрузите данные</p>
-}
-else if (inputData == null)
-{
-    <p><em>Загрузка...</em></p>
-}
-else
+@if (inputData is not null)
 {
     if (IsCalc == Status.NoStarted)
     {
@@ -63,7 +55,7 @@ else
             <td>Количество экспонент</td>
             <td><input type="number" @bind="numberOfExponents" /></td>
         </tr>
-        
+
     }
     <tr>
         <th>
@@ -73,8 +65,49 @@ else
             <button @onclick="SetPenatlyOptions" class="btn btn-primary">Задать границы и штрафы</button>
         </th>
     </tr>
+}
+@if (IsSettingPenatlyOptions)
+{
+    <tr>
+        <td>CostA</td>
+        <td><input type="text" @bind="penatlyOptions.CostB" /></td>
+        <td>CostB</td>
+        <td><input type="text" @bind="penatlyOptions.CostB" /></td>
+    </tr>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>a_lb</th>
+                <th>a_ub</th>
+                <th>b_lb</th>
+                <th>b_ub</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in penatlyOptions.Items)
+            {
+                <tr>
+                    <td><input type="text" @bind="item.ALb" /></td>
+                    <td><input type="text" @bind="item.AUb" /></td>
+                    <td><input type="text" @bind="item.BLb" /></td>
+                    <td><input type="text" @bind="item.BUb" /></td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
 
 
+@if (!IsLoading)
+{
+    <p>Загрузите данные</p>
+}
+else if (inputData == null)
+{
+    <p><em>Загрузка...</em></p>
+}
+else
+{
     <p>@(inputData is not null ? $"Загружено {inputData.X.Length} точек" : "")</p>
 
     <table class="table">
@@ -112,7 +145,7 @@ else
     private ExpModel.Result modelResult = null;
     private bool IsLoading;
     private Status IsCalc = Status.NoStarted;
-    private PenatlyOptions? penatlyOptions = null;
+    private PenatlyOptionsDto? penatlyOptions = null;
     private bool IsSettingPenatlyOptions;
 
     private async Task HandleSelected(InputFileChangeEventArgs e)
@@ -124,7 +157,7 @@ else
             await e.File.OpenReadStream().CopyToAsync(ms);
             inputData = _excelService.LoadDateFromFile(ms);
         }
-        catch(Exception ex)
+        catch (Exception ex)
         {
             Console.WriteLine(ex);
         }
@@ -132,24 +165,25 @@ else
 
     private void SetPenatlyOptions()
     {
-        penatlyOptions = new PenatlyOptions();
+        penatlyOptions = new PenatlyOptionsDto(numberOfExponents);
+        IsSettingPenatlyOptions = true;
     }
 
     private async Task Calc()
     {
         try
         {
-            if(numberOfExponents <= 0)
+            if (numberOfExponents <= 0)
             {
                 return;
             }
             IsCalc = Status.InProgress;
-            modelResult = await _expModel.Fit(inputData.X, inputData.YMid, inputData.X, numberOfExponents);
+            modelResult = await _expModel.Fit(inputData.X, inputData.YMid, inputData.X, penatlyOptions?.GetPenatlyOptions());
             IsCalc = Status.Done;
         }
         catch (Exception ex)
         {
-           Console.WriteLine(ex);
+            Console.WriteLine(ex);
         }
     }
 }

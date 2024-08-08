@@ -51,8 +51,11 @@ namespace ExpCurvFitting.Test
             result.Should().BeInRange(-8.1, -7.1);
         }
 
-        [Fact]
-        public void TestPenatlyGradA()
+        [Theory]
+        [InlineData(1.5, 1.0)]
+        [InlineData(2.5, 0.0)]
+        [InlineData(3.5, -1.0)]
+        public void TestPenatlyGradA(double val, double except)
         {
             var xLb = new DenseVector([1.0, 2.0]);
             var xUb = new DenseVector([1.0, 2.0]);
@@ -76,19 +79,16 @@ namespace ExpCurvFitting.Test
             var tol = new TolWithPenatly(xLb, xUb, yLb, yUb, penatlyOptions);
             var b = new DenseVector([1.7, 2.5]);
 
-            var a = new DenseVector([1.5, 1.5]);
-            var gradA1 = tol.GradAPenatly(a, b);
-            gradA1.Should().BeEquivalentTo(new DenseVector([0.0, 1.0]));
-            a = new DenseVector([1.5, 3.5]);
-            var gradA2 = tol.GradAPenatly(a, b);
-            gradA2.Should().BeEquivalentTo(new DenseVector([0.0, -1.0]));
-            a = new DenseVector([1.5, 2.5]);
-            var gradA3 = tol.GradAPenatly(a, b);
-            gradA3.Should().BeEquivalentTo(new DenseVector([0.0, 0.0]));
+            var a = new DenseVector([1.5, val]);
+            var gradA = tol.GradAPenatly(a, b);
+            gradA.Should().BeEquivalentTo(new DenseVector([0.0, except]));
         }
 
-        [Fact]
-        public void TestPenatlyGradB()
+        [Theory]
+        [InlineData(0.7, 1.0)]
+        [InlineData(1.7, 0.0)]
+        [InlineData(2.7, -1.0)]
+        public void TestPenatlyGradB(double val, double except)
         {
             var xLb = new DenseVector([1.0, 2.0]);
             var xUb = new DenseVector([1.0, 2.0]);
@@ -112,15 +112,9 @@ namespace ExpCurvFitting.Test
             var tol = new TolWithPenatly(xLb, xUb, yLb, yUb, penatlyOptions);
             var a = new DenseVector([1.5, 2.5]);
 
-            var b = new DenseVector([0.7, 2.5]);
-            var gradA1 = tol.GradBPenatly(a, b);
-            gradA1.Should().BeEquivalentTo(new DenseVector([1.0, 0.0]));
-            b = new DenseVector([1.7, 2.5]);
-            var gradA2 = tol.GradBPenatly(a, b);
-            gradA2.Should().BeEquivalentTo(new DenseVector([0.0, 0.0]));
-            b = new DenseVector([2.7, 2.5]);
-            var gradA3 = tol.GradBPenatly(a, b);
-            gradA3.Should().BeEquivalentTo(new DenseVector([-1.0, 0.0]));
+            var b = new DenseVector([val, 2.5]);
+            var gradA = tol.GradBPenatly(a, b);
+            gradA.Should().BeEquivalentTo(new DenseVector([except, 0.0]));
         }
     }
 }

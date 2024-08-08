@@ -67,7 +67,6 @@ namespace ExpCurvFitting.Core
                 while (d > 0 && cal <= 500)
                 {
                     x = x - hs * dx;
-                    x = x.PointwiseAbs();  // Временно
                     deltax = deltax + hs * normadx;
                     ncall++;
                     objective.EvaluateAt(x);
