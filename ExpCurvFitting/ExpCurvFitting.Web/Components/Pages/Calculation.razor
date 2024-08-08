@@ -12,7 +12,11 @@
 
 <h1>Восстановление полинома из экспонент</h1>
 
-<InputFile OnChange="HandleSelected" MaxAllowedSize="10485760" />
+<tr>
+    <td>Количество экспонент</td>
+    <td><InputFile OnChange="HandleSelected" MaxAllowedSize="10485760"/></td>
+</tr>
+
 
 @if (inputData is not null)
 {
@@ -32,7 +36,7 @@
     {
         <p>
             <tr>Tol @modelResult.TolValue</tr>
-            <tr>RMSE @modelResult.Rmse</tr>
+            <tr>RMSE @modelResult.RmseForCenter</tr>
             <table class="table">
                 <thead>
                     <tr>
@@ -178,7 +182,8 @@ else
                 return;
             }
             IsCalc = Status.InProgress;
-            modelResult = await _expModel.Fit(inputData.X, inputData.YMid, inputData.X, penatlyOptions?.GetPenatlyOptions());
+            await _expModel.FitForNonIntervalX(inputData.X, inputData.YMid, inputData.YRad, penatlyOptions?.GetPenatlyOptions());
+            modelResult = _expModel.GetResult();
             IsCalc = Status.Done;
         }
         catch (Exception ex)

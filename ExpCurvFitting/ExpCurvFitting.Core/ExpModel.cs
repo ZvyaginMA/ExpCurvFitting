@@ -1,63 +1,57 @@
 ﻿using MathNet.Numerics.LinearAlgebra;
 using MathNet.Numerics.LinearAlgebra.Double;
+using static ExpCurvFitting.Core.ExpModel;
 namespace ExpCurvFitting.Core;
 public record ExpModel
 {
+    public Vector<double> A { get; private set; }
+    public Vector<double> B { get; private set; }
+    public OptimizationResult FittingResult { get; private set; }
     public ExpModel()
     {
     }
 
-    public async Task<Result> Fit(Vector<double> xLb, Vector<double> xUb, Vector<double> yLb, Vector<double> yUb, int numberOfExp)
-    {
-        var tol = new Tol(xLb, xUb, yLb, yUb);
-        var result = await tol.MultistartOptimization(new RalgbSubgradientMinimizer(1e-12, 10000),100, numberOfExp);
-        return await Task.FromResult(new Result
-        {
-            TolValue = result.TolValue,
-            A = result.A.AsArray(),
-            B = result.B.AsArray(),
-            Rmse = result.Rmse,
-        });
-    }
-
-    public async Task<Result> Fit(Vector<double> xLb, Vector<double> xUb, Vector<double> yLb, Vector<double> yUb, PenatlyOptions penatlyOptions)
+    public async Task Fit(Vector<double> xLb, Vector<double> xUb, Vector<double> yLb, Vector<double> yUb, PenatlyOptions penatlyOptions)
     {
         var tol = new TolWithPenatly(xLb, xUb, yLb, yUb, penatlyOptions);
-        var result = await tol.MultistartOptimization(new RalgbSubgradientMinimizer(1e-12, 10000), 100, penatlyOptions.ALb.Count);
-        return await Task.FromResult(new Result
+        FittingResult = await tol.MultistartOptimization(new RalgbSubgradientMinimizer(1e-12, 10000), 100, penatlyOptions.ALb.Count);
+        FittingResult.Rmse = CalcRmse(xLb, xUb, yLb, yUb);
+    }
+
+    public double CalcRmse(Vector<double> xLb, Vector<double> xUb, Vector<double> yLb, Vector<double> yUb)
+    {
+        var yPredict = Pridict(0.5 * (xLb + xUb));
+        var yMid = 0.5 * (yLb + yUb);
+        return Math.Pow((yPredict - yMid).DotProduct(yPredict - yMid)/ yMid.Count, 0.5);
+    }
+
+    public async Task FitForNonIntervalX(IEnumerable<double> x, IEnumerable<double> yMid, IEnumerable<double> yRad, PenatlyOptions penatlyOptions)
+    {
+        var xx = new DenseVector(x.ToArray());
+        var yyMid = new DenseVector(yMid.ToArray());
+        var yyRad = new DenseVector(yRad.ToArray());
+        await Fit(xx, xx, yyMid - yyRad, yyMid + yyRad, penatlyOptions);
+    }
+
+    public double Pridict(double x)
+    {
+        return FittingResult.A.DotProduct((-x * FittingResult.B).PointwiseExp());
+    }
+
+    public Vector<double> Pridict(Vector<double> x)
+    {
+        var result = Vector.Build.Dense(x.Count);
+        for (int i = 0; i < x.Count; i++)
         {
-            TolValue = result.TolValue,
-            A = result.A.AsArray(),
-            B = result.B.AsArray(),
-            Rmse = result.Rmse,
-        });
-    }
-
-    public async Task<Result> Fit(IEnumerable<double> x, IEnumerable<double> yMid, IEnumerable<double> yRad, int numberOfExp)
-    {
-        var xx = new DenseVector(x.ToArray());
-        var yyMid = new DenseVector(x.ToArray());
-        var yyRad = new DenseVector(x.ToArray());
-        return await Fit(xx, xx, yyMid - yyMid, yyMid + yyMid, numberOfExp);
-    }
-
-    public async Task<Result> Fit(IEnumerable<double> x, IEnumerable<double> yMid, IEnumerable<double> yRad, PenatlyOptions penatlyOptions)
-    {
-        var xx = new DenseVector(x.ToArray());
-        var yyMid = new DenseVector(x.ToArray());
-        var yyRad = new DenseVector(x.ToArray());
-        return await Fit(xx, xx, yyMid - yyMid, yyMid + yyMid, penatlyOptions);
-    }
-
-    public void Pridict()
-    {
-        
+            result[i] = FittingResult.A.DotProduct((-x[i] * FittingResult.B).PointwiseExp());
+        }
+        return result;
     }
 
     public record Result
     {
         public double TolValue { get; init; }
-        public double Rmse { get; init; }
+        public double RmseForCenter { get; init; }
         public double[] A { get; init; }
         public double[] B { get; init; }
 
@@ -68,5 +62,16 @@ public record ExpModel
                 yield return new(A[i], B[i]);
             }
         }
+    }
+
+    public Result GetResult()
+    {
+        return new Result
+        {
+            TolValue = FittingResult.TolValue,
+            A = FittingResult.A.AsArray(),
+            B = FittingResult.B.AsArray(),
+            RmseForCenter = FittingResult.Rmse,
+        };
     }
 }

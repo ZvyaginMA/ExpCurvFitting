@@ -120,7 +120,7 @@ public record Tol : ITol
         }
         await Task.WhenAll(tasks);
 
-        var result = concurrentBag.OrderByDescending(r => r.TolValue).First() with { Rmse = 0.1 };
+        var result = concurrentBag.OrderByDescending(r => r.TolValue).First();
         return result;
     }
     #endregion

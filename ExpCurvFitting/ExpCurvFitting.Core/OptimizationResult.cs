@@ -7,5 +7,5 @@ public record OptimizationResult
     public Vector<double> A { get; init; }
     public Vector<double> B { get; init; }
     public double GradL2Norm { get; init; }
-    public double Rmse { get; init; }
+    public double Rmse { get; set; }
 }
