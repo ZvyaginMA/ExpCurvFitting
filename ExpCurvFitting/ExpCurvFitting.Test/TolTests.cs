@@ -1,4 +1,5 @@
 using ExpCurvFitting.Core;
+using ExpCurvFitting.Core.RecognizingFunctions;
 using FluentAssertions;
 using MathNet.Numerics.LinearAlgebra.Double;
 using System.Diagnostics;

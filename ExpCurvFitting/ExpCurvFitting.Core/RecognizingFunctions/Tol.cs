@@ -2,7 +2,7 @@
 using MathNet.Numerics.Optimization;
 using System.Collections.Concurrent;
 
-namespace ExpCurvFitting.Core;
+namespace ExpCurvFitting.Core.RecognizingFunctions;
 public record Tol : ITol
 {
     public Vector<double> XLowerBound { get; init; }

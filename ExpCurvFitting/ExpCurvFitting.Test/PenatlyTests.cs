@@ -1,7 +1,7 @@
 ﻿using ExpCurvFitting.Core;
 using MathNet.Numerics.LinearAlgebra.Double;
 using FluentAssertions;
-using System.Diagnostics;
+using ExpCurvFitting.Core.RecognizingFunctions;
 namespace ExpCurvFitting.Test
 {
     public class PenatlyTests

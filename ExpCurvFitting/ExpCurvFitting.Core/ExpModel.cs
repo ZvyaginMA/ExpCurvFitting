@@ -1,6 +1,6 @@
-﻿using MathNet.Numerics.LinearAlgebra;
+﻿using ExpCurvFitting.Core.RecognizingFunctions;
+using MathNet.Numerics.LinearAlgebra;
 using MathNet.Numerics.LinearAlgebra.Double;
-using static ExpCurvFitting.Core.ExpModel;
 namespace ExpCurvFitting.Core;
 public record ExpModel
 {

@@ -1,6 +1,7 @@
 ﻿using ExpCurvFitting.Core;
 using MathNet.Numerics.LinearAlgebra.Double;
 using FluentAssertions;
+using ExpCurvFitting.Core.RecognizingFunctions;
 
 namespace ExpCurvFitting.Test
 {

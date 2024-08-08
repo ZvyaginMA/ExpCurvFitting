@@ -20,7 +20,7 @@
     <Content Update="Components\Layout\NavMenu.razor">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Content>
-    <Content Update="Components\Pages\Calculation.razor">
+    <Content Update="Components\Pages\Exp.razor">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Content>
     <Content Update="Components\Routes.razor">
