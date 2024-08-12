@@ -1,6 +1,8 @@
-﻿using ExpCurvFitting.Core;
+﻿using ExpCurvFitting.Core.Models;
 using MathNet.Numerics.LinearAlgebra.Double;
 using FluentAssertions;
+using ExpCurvFitting.Core.RecognizingFunctions;
+using ExpCurvFitting.Core.Optimization;
 
 namespace ExpCurvFitting.Test
 {
@@ -29,7 +31,7 @@ namespace ExpCurvFitting.Test
                 CostB = 5,
             };
 
-            var tol = new TolWithPenatly(xLb, xUb, yLb, yUb, penatlyOptions);
+            var tol = new ExpTolWithPenatly(xLb, xUb, yLb, yUb, penatlyOptions);
             var result = tol.Optimization(new RalgbSubgradientMinimizer(1e-5, 10000), new DenseVector([1.0, 2.0, 5.0, 4.0]));
             result.TolValue.Should().BeInRange(0.09, 0.1);
         }
@@ -60,7 +62,7 @@ namespace ExpCurvFitting.Test
                 CostB = 5,
             };
 
-            var tol = new TolWithPenatly(xLb, xUb, yLb, yUb, penatlyOptions);
+            var tol = new ExpTolWithPenatly(xLb, xUb, yLb, yUb, penatlyOptions);
             var result = tol.Optimization(new RalgbSubgradientMinimizer(1e-5, 10000), new DenseVector([1.0, 2.0, 5.0, 4.0]));
             result.A[0].Should().BeInRange(penatlyOptions.ALb[0], penatlyOptions.AUb[0]);
             result.A[1].Should().BeInRange(penatlyOptions.ALb[1], penatlyOptions.AUb[1]);

@@ -2,13 +2,13 @@
 @rendermode InteractiveServer
 @using Microsoft.AspNetCore.Components.Forms
 @using ExpCurvFitting.Application
-@using ExpCurvFitting.Core
+@using ExpCurvFitting.Core.Models
 @using ExpCurvFitting.Web.Models
 @inject ExcelService _excelService
 @inject ExpModel _expModel;
 
 
-<PageTitle>Curve fitting</PageTitle>
+<PageTitle>Exponents curve fitting</PageTitle>
 
 <h1>Восстановление полинома из экспонент</h1>
 
@@ -35,8 +35,9 @@
     else
     {
         <p>
-            <tr>Tol @modelResult.TolValue</tr>
-            <tr>RMSE @modelResult.RmseForCenter</tr>
+            <tr>Tol: @modelResult.TolValue</tr>
+            <tr>RMSE: @modelResult.RmseForCenter</tr>
+            <tr>Время расчета: @modelResult.TimeCalculation с.</tr>
             <table class="table">
                 <thead>
                     <tr>
@@ -181,8 +182,12 @@ else
             {
                 return;
             }
+            if (penatlyOptions is null || numberOfExponents != penatlyOptions.NumberOfExp)
+            {
+                penatlyOptions = new PenatlyOptionsDto(numberOfExponents);
+            }
             IsCalc = Status.InProgress;
-            await _expModel.FitForNonIntervalX(inputData.X, inputData.YMid, inputData.YRad, penatlyOptions?.GetPenatlyOptions());
+            await _expModel.FitForNonIntervalX(inputData.X, inputData.YMid, inputData.YRad, penatlyOptions.GetPenatlyOptions());
             modelResult = _expModel.GetResult();
             IsCalc = Status.Done;
         }

@@ -1,7 +1,7 @@
-﻿using ExpCurvFitting.Core;
+﻿using ExpCurvFitting.Core.Models;
 using MathNet.Numerics.LinearAlgebra.Double;
 using FluentAssertions;
-using System.Diagnostics;
+using ExpCurvFitting.Core.RecognizingFunctions;
 namespace ExpCurvFitting.Test
 {
     public class PenatlyTests
@@ -28,7 +28,7 @@ namespace ExpCurvFitting.Test
                 CostA = 1,
                 CostB = 1,
             };
-            var tol = new TolWithPenatly(xLb, xUb, yLb, yUb, penatlyOptions);
+            var tol = new ExpTolWithPenatly(xLb, xUb, yLb, yUb, penatlyOptions);
             var a = new DenseVector([1.5, 1.5]);
             var b = new DenseVector([1.7, 2.5]);
 
@@ -76,7 +76,7 @@ namespace ExpCurvFitting.Test
                 CostA = 1,
                 CostB = 1,
             };
-            var tol = new TolWithPenatly(xLb, xUb, yLb, yUb, penatlyOptions);
+            var tol = new ExpTolWithPenatly(xLb, xUb, yLb, yUb, penatlyOptions);
             var b = new DenseVector([1.7, 2.5]);
 
             var a = new DenseVector([1.5, val]);
@@ -109,7 +109,7 @@ namespace ExpCurvFitting.Test
                 CostA = 1,
                 CostB = 1,
             };
-            var tol = new TolWithPenatly(xLb, xUb, yLb, yUb, penatlyOptions);
+            var tol = new ExpTolWithPenatly(xLb, xUb, yLb, yUb, penatlyOptions);
             var a = new DenseVector([1.5, 2.5]);
 
             var b = new DenseVector([val, 2.5]);

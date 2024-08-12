@@ -1,9 +1,11 @@
-﻿using MathNet.Numerics.LinearAlgebra;
+﻿using ExpCurvFitting.Core.Models;
+using MathNet.Numerics.LinearAlgebra;
 using MathNet.Numerics.Optimization;
 using System.Collections.Concurrent;
+using System.Diagnostics;
 
-namespace ExpCurvFitting.Core;
-public record Tol : ITol
+namespace ExpCurvFitting.Core.RecognizingFunctions;
+public record ExpTol : ITol
 {
     public Vector<double> XLowerBound { get; init; }
     public Vector<double> XUpperBound { get; init; }
@@ -14,7 +16,7 @@ public record Tol : ITol
     public Vector<double> XRad => 0.5 * (XUpperBound - XLowerBound);
     public Vector<double> YMid => 0.5 * (YLowerBound + YUpperBound);
     public Vector<double> YRad => 0.5 * (YUpperBound - YLowerBound);
-    public Tol(Vector<double> xLowerBound, Vector<double> xUpperBound, Vector<double> yLowerBound, Vector<double> yUpperBound)
+    public ExpTol(Vector<double> xLowerBound, Vector<double> xUpperBound, Vector<double> yLowerBound, Vector<double> yUpperBound)
     {
         XLowerBound = xLowerBound;
         XUpperBound = xUpperBound;
@@ -109,19 +111,31 @@ public record Tol : ITol
     {
         var concurrentBag = new ConcurrentBag<OptimizationResult>();
         var tasks = new List<Task>();
+        var random = new Random();
+        var stopwatch = new Stopwatch();
+        stopwatch.Start();
         for (int i = 0; i < countStarts; i++)
         {
             tasks.Add(Task.Run(() =>
             {
-                var initPoints = Vector<double>.Build.Random(countExp * 2);
-                var currentResult = Optimization(minimizer, initPoints);
-                concurrentBag.Add(currentResult);
+                try
+                {
+                    var vector = new double[countExp * 2];
+                    vector.Select(i => random.NextDouble());
+                    var initPoints = Vector<double>.Build.DenseOfEnumerable(vector.Select(i => random.NextDouble()));
+                    var currentResult = Optimization(minimizer, initPoints);
+                    concurrentBag.Add(currentResult);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.ToString());
+                }
             }));
         }
         await Task.WhenAll(tasks);
-
+        stopwatch.Stop();
         var result = concurrentBag.OrderByDescending(r => r.TolValue).First();
-        return result;
+        return result with { TimeCalculation = stopwatch.Elapsed }; 
     }
     #endregion
 }

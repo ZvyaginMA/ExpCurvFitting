@@ -1,6 +1,5 @@
 ﻿using MathNet.Numerics.LinearAlgebra;
-
-namespace ExpCurvFitting.Core;
+namespace ExpCurvFitting.Core.Models;
 public record PenatlyOptions
 {
     public Vector<double> ALb { get; init; }

@@ -1,7 +1,7 @@
 ﻿using MathNet.Numerics.LinearAlgebra;
 using MathNet.Numerics.Optimization;
 
-namespace ExpCurvFitting.Core
+namespace ExpCurvFitting.Core.Optimization
 {
     public class RalgbSubgradientMinimizer : IUnconstrainedMinimizer
     {
@@ -63,7 +63,7 @@ namespace ExpCurvFitting.Core
                 var cal = 0;
                 var ncall = 0;
                 var deltax = 0.0;
-                
+
                 while (d > 0 && cal <= 500)
                 {
                     x = x - hs * dx;
@@ -73,7 +73,7 @@ namespace ExpCurvFitting.Core
                     gradient1 = objective.Gradient;
                     f = objective.Value;
 
-                    if(f < fr)
+                    if (f < fr)
                     {
                         fr = f;
                         xr = x;
@@ -82,7 +82,7 @@ namespace ExpCurvFitting.Core
                     if (cal % 5 == 0)
                     {
                         hs = hs * q2;
-                    } 
+                    }
 
 
                     if (gradient1.Norm(2.0) < gradientTolerance)
