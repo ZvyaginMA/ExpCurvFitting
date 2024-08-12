@@ -1,6 +1,6 @@
 using ExpCurvFitting.Web.Components;
 using ExpCurvFitting.Application;
-using ExpCurvFitting.Core;
+using ExpCurvFitting.Core.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 

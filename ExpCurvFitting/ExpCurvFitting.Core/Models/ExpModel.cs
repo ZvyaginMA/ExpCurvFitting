@@ -1,19 +1,16 @@
 ﻿using ExpCurvFitting.Core.RecognizingFunctions;
+using ExpCurvFitting.Core.Optimization;
 using MathNet.Numerics.LinearAlgebra;
 using MathNet.Numerics.LinearAlgebra.Double;
-namespace ExpCurvFitting.Core;
+using System.Diagnostics;
+namespace ExpCurvFitting.Core.Models;
 public record ExpModel
 {
-    public Vector<double> A { get; private set; }
-    public Vector<double> B { get; private set; }
     public OptimizationResult FittingResult { get; private set; }
-    public ExpModel()
-    {
-    }
 
     public async Task Fit(Vector<double> xLb, Vector<double> xUb, Vector<double> yLb, Vector<double> yUb, PenatlyOptions penatlyOptions)
     {
-        var tol = new TolWithPenatly(xLb, xUb, yLb, yUb, penatlyOptions);
+        var tol = new ExpTolWithPenatly(xLb, xUb, yLb, yUb, penatlyOptions);
         FittingResult = await tol.MultistartOptimization(new RalgbSubgradientMinimizer(1e-12, 10000), 100, penatlyOptions.ALb.Count);
         FittingResult.Rmse = CalcRmse(xLb, xUb, yLb, yUb);
     }
@@ -52,6 +49,7 @@ public record ExpModel
     {
         public double TolValue { get; init; }
         public double RmseForCenter { get; init; }
+        public double TimeCalculation { get; init; }
         public double[] A { get; init; }
         public double[] B { get; init; }
 
@@ -72,6 +70,7 @@ public record ExpModel
             A = FittingResult.A.AsArray(),
             B = FittingResult.B.AsArray(),
             RmseForCenter = FittingResult.Rmse,
+            TimeCalculation = FittingResult.TimeCalculation.TotalSeconds
         };
     }
 }

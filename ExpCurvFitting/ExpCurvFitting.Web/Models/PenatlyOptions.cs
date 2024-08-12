@@ -1,4 +1,4 @@
-﻿using ExpCurvFitting.Core;
+﻿using ExpCurvFitting.Core.Models;
 using MathNet.Numerics.LinearAlgebra.Double;
 namespace ExpCurvFitting.Web.Models
 {

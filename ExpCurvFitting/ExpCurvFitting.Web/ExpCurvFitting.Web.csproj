@@ -4,13 +4,19 @@
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>c4b7af90-c099-4d7d-9406-f461f88fcb04</UserSecretsId>
+    <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
   </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.20.1" />
+  </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\ExpCurvFitting.Application\ExpCurvFitting.Application.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
+	<ItemGroup>
     <Content Update="Components\App.razor">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Content>
@@ -42,11 +48,10 @@
 
   <ItemGroup>
     <None Update="Components\Layout\MainLayout.razor.css">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>
     <None Update="Components\Layout\NavMenu.razor.css">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>
   </ItemGroup>
-
 </Project>

@@ -1,4 +1,5 @@
-﻿using MathNet.Numerics.LinearAlgebra;
+﻿using ExpCurvFitting.Core.Models;
+using MathNet.Numerics.LinearAlgebra;
 using MathNet.Numerics.Optimization;
 namespace ExpCurvFitting.Core.RecognizingFunctions;
 
