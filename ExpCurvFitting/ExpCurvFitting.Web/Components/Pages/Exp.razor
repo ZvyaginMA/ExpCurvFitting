@@ -12,11 +12,7 @@
 
 <h1>Восстановление полинома из экспонент</h1>
 
-<tr>
-    <td>Количество экспонент</td>
-    <td><InputFile OnChange="HandleSelected" MaxAllowedSize="10485760"/></td>
-</tr>
-
+<p><InputFile OnChange="HandleSelected" MaxAllowedSize="10485760" /></p>
 
 @if (inputData is not null)
 {
@@ -64,10 +60,10 @@
     }
     <tr>
         <th>
-            <button @onclick="Calc" class="btn btn-primary">Начать расчет</button>
+            <button @onclick="SetPenatlyOptions" class="btn btn-primary">Задать границы и штрафы</button>
         </th>
         <th>
-            <button @onclick="SetPenatlyOptions" class="btn btn-primary">Задать границы и штрафы</button>
+            <button @onclick="Calc" class="btn btn-primary">Начать расчет</button>
         </th>
     </tr>
 }
@@ -146,8 +142,8 @@ else
     };
 
     private int numberOfExponents;
-    private ExcelService.Result inputData = null;
-    private ExpModel.Result modelResult = null;
+    private ExcelService.Result inputData = null!;
+    private ExpModel.Result modelResult = null!;
     private bool IsLoading;
     private Status IsCalc = Status.NoStarted;
     private PenatlyOptionsDto? penatlyOptions = null;

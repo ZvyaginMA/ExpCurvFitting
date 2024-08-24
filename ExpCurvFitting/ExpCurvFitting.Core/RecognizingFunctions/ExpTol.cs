@@ -120,15 +120,13 @@ public record ExpTol : ITol
             {
                 try
                 {
-                    var vector = new double[countExp * 2];
-                    vector.Select(i => random.NextDouble());
-                    var initPoints = Vector<double>.Build.DenseOfEnumerable(vector.Select(i => random.NextDouble()));
+                    var initPoints = Vector<double>.Build.DenseOfEnumerable(Enumerable.Range(0, countExp * 2).Select(i => random.NextDouble()));
                     var currentResult = Optimization(minimizer, initPoints);
                     concurrentBag.Add(currentResult);
                 }
-                catch (Exception ex)
+                catch (ArithmeticException ex)
                 {
-                    Console.WriteLine(ex.ToString());
+                    // 
                 }
             }));
         }
