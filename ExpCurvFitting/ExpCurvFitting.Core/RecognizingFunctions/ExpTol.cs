@@ -99,14 +99,6 @@ public record ExpTol : ITol
         };
     }
 
-    public OptimizationResult Optimization(IUnconstrainedMinimizer minimizer, Vector<double> A, Vector<double> B)
-    {
-        var x0 = Vector<double>.Build.Dense(A.Count * 2);
-        x0.SetSubVector(0, A.Count, A);
-        x0.SetSubVector(A.Count, A.Count, B);
-        return Optimization(minimizer, x0);
-    }
-
     public async Task<OptimizationResult> MultistartOptimization(IUnconstrainedMinimizer minimizer, int countStarts, int countExp)
     {
         var concurrentBag = new ConcurrentBag<OptimizationResult>();
