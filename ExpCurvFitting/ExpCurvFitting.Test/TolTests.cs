@@ -50,7 +50,7 @@ namespace ExpCurvFitting.Test
             var yLb = new DenseVector([2.51, 2.04, 1.67, 1.37, 1.12, 0.93]) - 0.1;
             var yUb = new DenseVector([2.51, 2.04, 1.67, 1.37, 1.12, 0.93]) + 0.1;
             var tol = new ExpTol(xLb, xUb, yLb, yUb);
-            var result = await tol.MultistartOptimization(new RalgbSubgradientMinimizer(1e-5, 1000), 20, 2);
+            var result = await tol.MultistartOptimization(new RalgbSubgradientMinimizer(1e-5, 1000), 20, 4);
             result.TolValue.Should().BeInRange(0.096, 0.097);
         }
 
@@ -115,7 +115,7 @@ namespace ExpCurvFitting.Test
             };
 
             var tol = new ExpTolWithPenatly(xLb, xUb, yVector - yVectorRad, yVector + yVectorRad, penatlyOptions);
-            var result = await tol.MultistartOptimization(new RalgbSubgradientMinimizer(1e-5, 1000),10, 2);
+            var result = await tol.MultistartOptimization(new RalgbSubgradientMinimizer(1e-5, 1000),10, 4);
 
             result.TolValue.Should().BeInRange(0.005, 0.006);
         }

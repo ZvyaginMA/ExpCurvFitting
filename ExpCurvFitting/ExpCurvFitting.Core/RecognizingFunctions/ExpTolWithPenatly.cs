@@ -2,7 +2,7 @@
 using MathNet.Numerics.LinearAlgebra;
 
 namespace ExpCurvFitting.Core.RecognizingFunctions;
-public record ExpTolWithPenatly : ExpTol, ITol
+public record ExpTolWithPenatly : ExpTol
 {
     public PenatlyOptions PenatlyOption { get; private set; }
     public ExpTolWithPenatly(Vector<double> xLowerBound, Vector<double> xUpperBound, Vector<double> yLowerBound, Vector<double> yUpperBound, PenatlyOptions penatlyOption) : base(xLowerBound, xUpperBound, yLowerBound, yUpperBound)

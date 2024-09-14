@@ -40,14 +40,13 @@ public record ExpTolWithPenatlyAndMixin : ExpTol
         return result;
     }
     
-    public double TolValue(Vector<double> x0)
+    public override double TolValue(Vector<double> x0)
     {
         var a = x0.SubVector(0, PenatlyOption.ALb.Count);
         var b = x0.SubVector(PenatlyOption.ALb.Count, PenatlyOption.ALb.Count);
         var c = x0.SubVector(PenatlyOption.ALb.Count * 2, PenatlyOption.CLb.Count);
         return TolValue(a, b, c);
     }
-    
 
     #region Penatly
     public double CalcPenatly(Vector<double> a, Vector<double> b, Vector<double> c)
@@ -86,7 +85,7 @@ public record ExpTolWithPenatlyAndMixin : ExpTol
     #endregion
     
     #region Gradient
-    public Vector<double> Grad(Vector<double> x0)
+    public override Vector<double> Grad(Vector<double> x0)
     {
         return Grad(x0.SubVector(0, PenatlyOption.ALb.Count), x0.SubVector(PenatlyOption.ALb.Count, PenatlyOption.ALb.Count), x0.SubVector(PenatlyOption.ALb.Count * 2, PenatlyOption.CLb.Count));
     }
@@ -133,26 +132,7 @@ public record ExpTolWithPenatlyAndMixin : ExpTol
         var mixinMid = 0.5 * Vector.Build.Dense(MixinFunction.Select(f =>  
                         f(XUpperBound[indexMin]) + f(XLowerBound[indexMin])).ToArray()); ;
         var grad = mixinRad - mixinMid * Math.Sign(0.5 * (eLb + eUb).DotProduct(a) + mixinMid.DotProduct(c) - YMid[indexMin]) ;
-        return grad + GradCPenatly(b);
+        return grad + GradCPenatly(c);
     }
     #endregion
-    
-    public new OptimizationWithMixinResult Optimization(IUnconstrainedMinimizer minimizer, Vector<double> x0)
-    {
-        Func<Vector<double>, (double, Vector<double>)> functional = (x) => new(-TolValue(x), -Grad(x));
-        var objective = ObjectiveFunction.Gradient(functional);
-        var result = minimizer.FindMinimum(objective, x0);
-        var a = result.MinimizingPoint.SubVector(0, PenatlyOption.ALb.Count);
-        var b = result.MinimizingPoint.SubVector(PenatlyOption.ALb.Count, PenatlyOption.ALb.Count);
-        var c = result.MinimizingPoint.SubVector(PenatlyOption.ALb.Count * 2, PenatlyOption.CLb.Count);
-
-        return new OptimizationWithMixinResult()
-        {
-            TolValue = -result.FunctionInfoAtMinimum.Value,
-            A = a,
-            B = b,
-            C = c,
-            GradL2Norm = result.FunctionInfoAtMinimum.Gradient.L2Norm()
-        };
-    }
 }
