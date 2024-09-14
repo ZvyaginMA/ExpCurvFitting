@@ -113,8 +113,6 @@ public record ExpTol
                 try
                 {
                     var initPoints = Vector<double>.Build.DenseOfEnumerable(Enumerable.Range(0, countVariables).Select(i => random.NextDouble()));
-                    vector.Select(i => random.NextDouble());
-                    var initPoints = Vector<double>.Build.DenseOfEnumerable(vector.Select(i => random.NextDouble()));
                     var currentResult = Optimization(minimizer, initPoints);
                     concurrentBag.Add(currentResult);
                 }
