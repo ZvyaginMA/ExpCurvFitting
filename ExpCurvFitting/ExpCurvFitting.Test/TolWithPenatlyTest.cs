@@ -63,7 +63,7 @@ namespace ExpCurvFitting.Test
             };
 
             var tol = new ExpTolWithPenatly(xLb, xUb, yLb, yUb, penatlyOptions);
-            var result = tol.Optimization(new RalgbSubgradientMinimizer(1e-5, 10000), new DenseVector([1.0, 2.0, 5.0, 4.0]));
+            var result = tol.Optimization(new RalgbSubgradientMinimizer(1e-5, 10000), new DenseVector([1.0, 2.0, 5.0, 4.0])).ToOptimizationResult(2);
             result.A[0].Should().BeInRange(penatlyOptions.ALb[0], penatlyOptions.AUb[0]);
             result.A[1].Should().BeInRange(penatlyOptions.ALb[1], penatlyOptions.AUb[1]);
             result.B[0].Should().BeInRange(penatlyOptions.BLb[0], penatlyOptions.BUb[0]);

@@ -3,15 +3,23 @@ using ExpCurvFitting.Core.Optimization;
 using MathNet.Numerics.LinearAlgebra;
 using MathNet.Numerics.LinearAlgebra.Double;
 using System.Diagnostics;
-namespace ExpCurvFitting.Core.Models;
-public record ExpModel
-{
-    public OptimizationResult FittingResult { get; private set; }
+using System.Drawing;
 
-    public async Task Fit(Vector<double> xLb, Vector<double> xUb, Vector<double> yLb, Vector<double> yUb, PenatlyOptions penatlyOptions)
+namespace ExpCurvFitting.Core.Models;
+public record ExpWithMixinModel
+{
+    public OptimizationWithMixinResult FittingResult { get; private set; }
+    public readonly IList<Func<double, double>> _mixinFunctions;
+    
+    public ExpWithMixinModel(
+        IList<Func<double, double>> mixinFunctions)
     {
-        var tol = new ExpTolWithPenatly(xLb, xUb, yLb, yUb, penatlyOptions);
-        FittingResult = (await tol.MultistartOptimization(new RalgbSubgradientMinimizer(1e-12, 10000), 100, penatlyOptions.ALb.Count * 2)).ToOptimizationResult(penatlyOptions.ALb.Count);
+        _mixinFunctions = mixinFunctions;
+    }
+    public async Task Fit(Vector<double> xLb, Vector<double> xUb, Vector<double> yLb, Vector<double> yUb, PenatlyOptionsWithMixin penatlyOption)
+    {
+        var tol = new ExpTolWithPenatlyAndMixin(xLb, xUb, yLb, yUb, penatlyOption, _mixinFunctions);
+        FittingResult = (await tol.MultistartOptimization(new RalgbSubgradientMinimizer(1e-12, 10000), 100, penatlyOption.ALb.Count*2 + penatlyOption.CLb.Count)).ToOptimizationWithMixinResult(penatlyOption.ALb.Count, penatlyOption.CLb.Count);
         FittingResult.Rmse = CalcRmse(xLb, xUb, yLb, yUb);
     }
 
@@ -22,17 +30,12 @@ public record ExpModel
         return Math.Pow((yPredict - yMid).DotProduct(yPredict - yMid)/ yMid.Count, 0.5);
     }
 
-    public async Task FitForNonIntervalX(IEnumerable<double> x, IEnumerable<double> yMid, IEnumerable<double> yRad, PenatlyOptions penatlyOptions)
+    public async Task FitForNonIntervalX(IEnumerable<double> x, IEnumerable<double> yMid, IEnumerable<double> yRad, PenatlyOptionsWithMixin penatlyOptions)
     {
         var xx = new DenseVector(x.ToArray());
         var yyMid = new DenseVector(yMid.ToArray());
         var yyRad = new DenseVector(yRad.ToArray());
         await Fit(xx, xx, yyMid - yyRad, yyMid + yyRad, penatlyOptions);
-    }
-
-    public double Pridict(double x)
-    {
-        return FittingResult.A.DotProduct((-x * FittingResult.B).PointwiseExp());
     }
 
     public Vector<double> Pridict(Vector<double> x)

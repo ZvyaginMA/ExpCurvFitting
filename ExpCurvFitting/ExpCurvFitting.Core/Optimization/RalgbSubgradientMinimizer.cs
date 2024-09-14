@@ -3,10 +3,10 @@ using MathNet.Numerics.Optimization;
 
 namespace ExpCurvFitting.Core.Optimization
 {
-    public class RalgbSubgradientMinimizer : IUnconstrainedMinimizer
+    public record RalgbSubgradientMinimizer : IUnconstrainedMinimizer
     {
-        public double GradientTolerance { get; set; }
-        public int MaximumIterations { get; set; }
+        public double GradientTolerance { get; init; }
+        public int MaximumIterations { get; init; }
 
         public RalgbSubgradientMinimizer(double gradientTolerance, int maximumIterations)
         {
@@ -118,8 +118,6 @@ namespace ExpCurvFitting.Core.Optimization
                     return new MinimizationResult(objective, iteration, ExitCondition.AbsoluteGradient);
                 }
             }
-
-
 
             return new MinimizationWithLineSearchResult(objective, 0, ExitCondition.AbsoluteGradient, 0, 0);
         }

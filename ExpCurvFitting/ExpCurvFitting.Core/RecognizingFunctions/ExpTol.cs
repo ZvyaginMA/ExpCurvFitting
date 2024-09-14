@@ -5,7 +5,7 @@ using System.Collections.Concurrent;
 using System.Diagnostics;
 
 namespace ExpCurvFitting.Core.RecognizingFunctions;
-public record ExpTol : ITol
+public record ExpTol
 {
     public Vector<double> XLowerBound { get; init; }
     public Vector<double> XUpperBound { get; init; }
@@ -63,11 +63,11 @@ public record ExpTol : ITol
                  * Math.Sign(0.5 * (eLb + eUb).DotProduct(a) - YMid[indexMin]);
         return grad;
     }
-    public double TolValue(Vector<double> x0)
+    public virtual double TolValue(Vector<double> x0)
     {
         return TolValue(x0.SubVector(0, x0.Count / 2), x0.SubVector(x0.Count / 2, x0.Count / 2));
     }
-    public Vector<double> Grad(Vector<double> x0)
+    public virtual Vector<double> Grad(Vector<double> x0)
     {
         var result = Vector<double>.Build.Dense(x0.Count);
         result.SetSubVector(0, x0.Count / 2, GradA(x0));
@@ -85,31 +85,23 @@ public record ExpTol : ITol
 
     #region Optimization
 
-    public OptimizationResult Optimization(IUnconstrainedMinimizer minimizer, Vector<double> x0)
+    public BaseOptimizationResult Optimization(IUnconstrainedMinimizer minimizer, Vector<double> x0)
     {
         Func<Vector<double>, (double, Vector<double>)> functional = (x) => new(-TolValue(x), -Grad(x));
         var objective = ObjectiveFunction.Gradient(functional);
         var result = minimizer.FindMinimum(objective, x0);
-        return new OptimizationResult
+        return new BaseOptimizationResult
         {
             TolValue = -result.FunctionInfoAtMinimum.Value,
-            A = result.MinimizingPoint.SubVector(0, x0.Count / 2),
-            B = result.MinimizingPoint.SubVector(x0.Count / 2, x0.Count / 2),
-            GradL2Norm = result.FunctionInfoAtMinimum.Gradient.L2Norm()
+            MinimizingPoint = result.MinimizingPoint,
+            GradL2Norm = result.FunctionInfoAtMinimum.Gradient.L2Norm(),
+            MinYRad = YRad.Min()
         };
     }
 
-    public OptimizationResult Optimization(IUnconstrainedMinimizer minimizer, Vector<double> A, Vector<double> B)
+    public async Task<BaseOptimizationResult> MultistartOptimization(IUnconstrainedMinimizer minimizer, int countStarts, int countVariables)
     {
-        var x0 = Vector<double>.Build.Dense(A.Count * 2);
-        x0.SetSubVector(0, A.Count, A);
-        x0.SetSubVector(A.Count, A.Count, B);
-        return Optimization(minimizer, x0);
-    }
-
-    public async Task<OptimizationResult> MultistartOptimization(IUnconstrainedMinimizer minimizer, int countStarts, int countExp)
-    {
-        var concurrentBag = new ConcurrentBag<OptimizationResult>();
+        var concurrentBag = new ConcurrentBag<BaseOptimizationResult>();
         var tasks = new List<Task>();
         var random = new Random();
         var stopwatch = new Stopwatch();
@@ -120,22 +112,23 @@ public record ExpTol : ITol
             {
                 try
                 {
-                    var vector = new double[countExp * 2];
-                    vector.Select(i => random.NextDouble());
-                    var initPoints = Vector<double>.Build.DenseOfEnumerable(vector.Select(i => random.NextDouble()));
+                    var initPoints = Vector<double>.Build.DenseOfEnumerable(Enumerable.Range(0, countVariables).Select(i => random.NextDouble()));
                     var currentResult = Optimization(minimizer, initPoints);
                     concurrentBag.Add(currentResult);
                 }
-                catch (Exception ex)
+                catch (ArithmeticException ex)
                 {
-                    Console.WriteLine(ex.ToString());
+                    // 
                 }
             }));
         }
         await Task.WhenAll(tasks);
         stopwatch.Stop();
         var result = concurrentBag.OrderByDescending(r => r.TolValue).First();
-        return result with { TimeCalculation = stopwatch.Elapsed }; 
+        return result with
+        {
+            TimeCalculation = stopwatch.Elapsed,
+        }; 
     }
     #endregion
 }
