@@ -3,6 +3,7 @@ using MathNet.Numerics.LinearAlgebra;
 using MathNet.Numerics.Optimization;
 using System.Collections.Concurrent;
 using System.Diagnostics;
+using ExpCurvFitting.Core.Optimization;
 
 namespace ExpCurvFitting.Core.RecognizingFunctions;
 public record ExpTol
@@ -85,21 +86,30 @@ public record ExpTol
 
     #region Optimization
 
-    public BaseOptimizationResult Optimization(IUnconstrainedMinimizer minimizer, Vector<double> x0)
+    public BaseOptimizationResult Optimization(
+        IMinimizer minimizer, 
+        Vector<double> x0,
+        CancellationToken token)
     {
         Func<Vector<double>, (double, Vector<double>)> functional = (x) => new(-TolValue(x), -Grad(x));
         var objective = ObjectiveFunction.Gradient(functional);
-        var result = minimizer.FindMinimum(objective, x0);
+        var result = minimizer.FindMinimum(objective, x0, token);
         return new BaseOptimizationResult
         {
             TolValue = -result.FunctionInfoAtMinimum.Value,
             MinimizingPoint = result.MinimizingPoint,
-            GradL2Norm = result.FunctionInfoAtMinimum.Gradient.L2Norm(),
-            MinYRad = YRad.Min()
+            GradL2Norm = result.FunctionInfoAtMinimum.Gradient.Norm(2),
+            MinYRad = YRad.Min(),
+            ReasonForExit = result.ReasonForExit
         };
     }
+    
+    
 
-    public async Task<BaseOptimizationResult> MultistartOptimization(IUnconstrainedMinimizer minimizer, int countStarts, int countVariables)
+    public async Task<BaseOptimizationResult> MultistartOptimization(
+        IMinimizer minimizer, 
+        int countStarts, int countVariables, 
+        CancellationToken cancellationToken = default)
     {
         var concurrentBag = new ConcurrentBag<BaseOptimizationResult>();
         var tasks = new List<Task>();
@@ -113,7 +123,7 @@ public record ExpTol
                 try
                 {
                     var initPoints = Vector<double>.Build.DenseOfEnumerable(Enumerable.Range(0, countVariables).Select(i => random.NextDouble()));
-                    var currentResult = Optimization(minimizer, initPoints);
+                    var currentResult = Optimization(minimizer, initPoints, cancellationToken);
                     concurrentBag.Add(currentResult);
                 }
                 catch (ArithmeticException ex)
@@ -124,7 +134,10 @@ public record ExpTol
         }
         await Task.WhenAll(tasks);
         stopwatch.Stop();
-        var result = concurrentBag.OrderByDescending(r => r.TolValue).First();
+        var result = concurrentBag
+            .OrderByDescending(r => r.TolValue)
+            .First();
+
         return result with
         {
             TimeCalculation = stopwatch.Elapsed,

@@ -40,7 +40,13 @@ public class ExpModelWithMixinTests
             CostC = 4,
         };
         
-        await model.Fit(xMid, xMid, yLb, yUb, penatlyOptions);
+        await model.Fit(
+            xMid, 
+            xMid, 
+            yLb, 
+            yUb, 
+            penatlyOptions, 
+            new OptimizationOptions());
 
         model.FittingResult.Should().NotBeNull();
         model.FittingResult.A[0].Should().BeInRange(0.799, 0.8);

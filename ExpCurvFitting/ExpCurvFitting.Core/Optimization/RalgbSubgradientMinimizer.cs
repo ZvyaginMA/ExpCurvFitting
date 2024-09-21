@@ -3,7 +3,7 @@ using MathNet.Numerics.Optimization;
 
 namespace ExpCurvFitting.Core.Optimization
 {
-    public record RalgbSubgradientMinimizer : IUnconstrainedMinimizer
+    public record RalgbSubgradientMinimizer : IUnconstrainedMinimizer, IMinimizer
     {
         public double GradientTolerance { get; init; }
         public int MaximumIterations { get; init; }
@@ -13,13 +13,36 @@ namespace ExpCurvFitting.Core.Optimization
             GradientTolerance = gradientTolerance;
             MaximumIterations = maximumIterations;
         }
-
-        public MinimizationResult FindMinimum(IObjectiveFunction objective, Vector<double> initialGuess)
+        
+        public MinimizationResult FindMinimum(
+            IObjectiveFunction objective, 
+            Vector<double> initialGuess)
         {
-            return Minimum(objective, initialGuess, GradientTolerance, MaximumIterations);
+            return FindMinimum(
+                objective, 
+                initialGuess, 
+                CancellationToken.None);
+        }
+        
+        public MinimizationResult FindMinimum(
+            IObjectiveFunction objective, 
+            Vector<double> initialGuess,
+            CancellationToken token)
+        {
+            return Minimum(
+                objective, 
+                initialGuess, 
+                GradientTolerance, 
+                MaximumIterations,
+                token);
         }
 
-        public static MinimizationResult Minimum(IObjectiveFunction objective, Vector<double> initialGuess, double gradientTolerance = 1e-8, int maxIterations = 1000)
+        public static MinimizationResult Minimum(
+            IObjectiveFunction objective, 
+            Vector<double> initialGuess, 
+            double gradientTolerance = 1e-8, 
+            int maxIterations = 1000,
+            CancellationToken token = default)
         {
             if (!objective.IsGradientSupported)
             {
@@ -50,6 +73,10 @@ namespace ExpCurvFitting.Core.Optimization
             var h0 = 1.0;
             while (iteration < maxIterations)
             {
+                if (token.IsCancellationRequested)
+                {
+                    return new MinimizationResult(objective, iteration, ExitCondition.ManuallyStopped);
+                }
                 gradient1 = B.TransposeThisAndMultiply(gradient);
                 if (gradient1.Norm(2.0) < gradientTolerance)
                 {
@@ -66,6 +93,10 @@ namespace ExpCurvFitting.Core.Optimization
 
                 while (d > 0 && cal <= 500)
                 {
+                    if (token.IsCancellationRequested)
+                    {
+                        return new MinimizationResult(objective, iteration, ExitCondition.ManuallyStopped);
+                    }
                     x = x - hs * dx;
                     deltax = deltax + hs * normadx;
                     ncall++;

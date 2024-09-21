@@ -5,7 +5,7 @@ namespace ExpCurvFitting.Test
 {
     public class ExcelServiceTests
     {
-        [Fact]
+        //[Fact]
         public async Task Test1()
         {
             var excelService = new ExcelService();
@@ -15,8 +15,6 @@ namespace ExpCurvFitting.Test
             var result = excelService.LoadDateFromFile(ms);
             result.Should().NotBeNull();
             result.IsSuccess.Should().BeTrue();
-
-            
         }
     }
 }

@@ -26,9 +26,6 @@
     <Content Update="Components\Layout\NavMenu.razor">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Content>
-    <Content Update="Components\Pages\Exp.razor">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </Content>
     <Content Update="Components\Routes.razor">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
@@ -43,6 +40,9 @@
     </Content>
     <Content Update="wwwroot\favicon2.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Update="Components\Pages\ExpWithMixin.razor">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
 
