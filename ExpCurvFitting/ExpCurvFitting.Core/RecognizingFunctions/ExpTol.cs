@@ -4,6 +4,7 @@ using MathNet.Numerics.Optimization;
 using System.Collections.Concurrent;
 using System.Diagnostics;
 using ExpCurvFitting.Core.Optimization;
+using System.Linq;
 
 namespace ExpCurvFitting.Core.RecognizingFunctions;
 public record ExpTol
@@ -103,8 +104,11 @@ public record ExpTol
             ReasonForExit = result.ReasonForExit
         };
     }
-    
-    
+
+    public virtual double CalcRmse(Vector<double> x0)
+    {
+        return 0;
+    }
 
     public async Task<BaseOptimizationResult> MultistartOptimization(
         IMinimizer minimizer, 
@@ -124,6 +128,7 @@ public record ExpTol
                 {
                     var initPoints = Vector<double>.Build.DenseOfEnumerable(Enumerable.Range(0, countVariables).Select(i => random.NextDouble()));
                     var currentResult = Optimization(minimizer, initPoints, cancellationToken);
+                    currentResult.Rmse = CalcRmse(currentResult.MinimizingPoint);
                     concurrentBag.Add(currentResult);
                 }
                 catch (ArithmeticException ex)
@@ -134,8 +139,17 @@ public record ExpTol
         }
         await Task.WhenAll(tasks);
         stopwatch.Stop();
+
+
+        var yRadMin = YRad.Min();
+        var CR = concurrentBag
+            .Select(r => r.TolValue)
+            .OrderByDescending(r => r)
+            .First() / yRadMin;
+
         var result = concurrentBag
-            .OrderByDescending(r => r.TolValue)
+            .Where(r => r.TolValue / yRadMin >= (1 - 1e-5) * CR)
+            .OrderBy(r => r.Rmse)
             .First();
 
         return result with
@@ -143,5 +157,6 @@ public record ExpTol
             TimeCalculation = stopwatch.Elapsed,
         }; 
     }
+    
     #endregion
 }

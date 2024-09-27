@@ -33,15 +33,9 @@ public record ExpWithMixinModel
             optimizationOptions.CountMultistarts, 
             penatlyOption.ALb.Count*2 + penatlyOption.CLb.Count, 
             cancellationToken)).ToOptimizationWithMixinResult(penatlyOption.ALb.Count, penatlyOption.CLb.Count);
-        FittingResult.Rmse = CalcRmse(xLb, xUb, yLb, yUb);
     }
 
-    public double CalcRmse(Vector<double> xLb, Vector<double> xUb, Vector<double> yLb, Vector<double> yUb)
-    {
-        var yPredict = Pridict(0.5 * (xLb + xUb));
-        var yMid = 0.5 * (yLb + yUb);
-        return Math.Pow((yPredict - yMid).DotProduct(yPredict - yMid)/ yMid.Count, 0.5);
-    }
+    
 
     public async Task FitForNonIntervalX(
         IEnumerable<double> x, 
@@ -58,16 +52,6 @@ public record ExpWithMixinModel
             penatlyOptions, 
             optimizationOptions,
             cancellationToken);
-    }
-
-    public Vector<double> Pridict(Vector<double> x)
-    {
-        var result = Vector.Build.Dense(x.Count);
-        for (int i = 0; i < x.Count; i++)
-        {
-            result[i] = FittingResult.A.DotProduct((-x[i] * FittingResult.B).PointwiseExp());
-        }
-        return result;
     }
 
     public record Result
