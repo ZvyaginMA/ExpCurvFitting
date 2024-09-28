@@ -140,17 +140,26 @@ public record ExpTol
         await Task.WhenAll(tasks);
         stopwatch.Stop();
 
-
         var yRadMin = YRad.Min();
         var CR = concurrentBag
             .Select(r => r.TolValue)
             .OrderByDescending(r => r)
             .First() / yRadMin;
 
-        var result = concurrentBag
-            .Where(r => r.TolValue / yRadMin >= (1 - 1e-5) * CR)
-            .OrderBy(r => r.Rmse)
+        BaseOptimizationResult result;
+        if (CR <= 1e-10)
+        {
+            result = concurrentBag
+            .OrderByDescending(r => r.TolValue)
             .First();
+        }
+        else
+        {
+            result = concurrentBag
+                .Where(r => r.TolValue / yRadMin >= (1 - 1e-5) * CR)
+                .OrderBy(r => r.Rmse)
+                .First();
+        }
 
         return result with
         {

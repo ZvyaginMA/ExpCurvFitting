@@ -111,13 +111,6 @@
 
 @if (IsSettingPenatlyOptions)
 {
-    <tr>
-        <td>CostA</td>
-        <td><input type="text" @bind="penatlyOptions.CostA"/></td>
-    </tr><tr>
-        <td>CostB</td>
-        <td><input type="text" @bind="penatlyOptions.CostB"/></td>
-    </tr>
     <table class="table">
         <thead>
             <tr>
@@ -140,9 +133,9 @@
             @if (UsePower)
             {
                 <tr>
-                    <td>c_lb</td>
+                    <th>c_lb</th>
                     <td><input type="text" @bind="penatlyOptions.cLb" /></td>
-                    <td>c_ub </td>
+                    <th>c_ub </th>
                     <td><input type="text" @bind="penatlyOptions.cUb" /></td>
                 </tr>
             }
