@@ -107,11 +107,14 @@ public record ExpTol
 
     public virtual double CalcRmse(Vector<double> x0)
     {
-        return 0;
+        return 0; 
+    }
+
     public async Task<BaseOptimizationResult> MultistartOptimization(
         IMinimizer minimizer, 
         int countStarts, int countVariables, 
         CancellationToken cancellationToken = default)
+    { 
         var concurrentBag = new ConcurrentBag<BaseOptimizationResult>();
         var tasks = new List<Task>();
         var random = new Random();
