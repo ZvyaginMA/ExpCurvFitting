@@ -1,4 +1,5 @@
 ﻿using MathNet.Numerics.LinearAlgebra;
+using MathNet.Numerics.Optimization;
 
 namespace ExpCurvFitting.Core.Models;
 
@@ -10,6 +11,7 @@ public record BaseOptimizationResult
     public double Rmse { get; set; }
     public TimeSpan TimeCalculation { get; set; }
     public double MinYRad { get; init; }
+    public ExitCondition ReasonForExit { get; init; }
 
     public OptimizationWithMixinResult ToOptimizationWithMixinResult(int countExp, int countMixins)
     {
@@ -30,6 +32,7 @@ public record BaseOptimizationResult
             A = a,
             B = b,
             C = c,
+            ReasonForExit = ReasonForExit
         };
     }
     
@@ -50,6 +53,7 @@ public record BaseOptimizationResult
             MinYRad = MinYRad,
             A = a,
             B = b,
+            ReasonForExit = ReasonForExit
         };
     }
 }

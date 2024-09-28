@@ -24,7 +24,31 @@ public record ExpTolWithPenatlyAndMixin : ExpTol
     {
         return CalcGeneratrix(a, b, c).Min() + CalcPenatly(a, b, c);
     }
-    
+
+    public Vector<double> Pridict(Vector<double> t, Vector<double> a, Vector<double> b, Vector<double> c)
+    {
+        var result = Vector.Build.Dense(t.Count);
+        for (int i = 0; i < t.Count; i++)
+        {
+            result[i] = a.DotProduct((-t[i] * b).PointwiseExp()) + c.DotProduct(Vector.Build.Dense(MixinFunction.Select(f => f(t[i])).ToArray()));
+        }
+        return result;
+    }
+
+    public double CalcRmse(Vector<double> a, Vector<double> b, Vector<double> c)
+    {
+        var yPredict = Pridict(XMid, a, b, c);
+        return Math.Pow((yPredict - YMid).DotProduct(yPredict - YMid) / YMid.Count, 0.5);
+    }
+
+    public override double CalcRmse(Vector<double> x0)
+    {
+        var a = x0.SubVector(0, PenatlyOption.ALb.Count);
+        var b = x0.SubVector(PenatlyOption.ALb.Count, PenatlyOption.ALb.Count);
+        var c = x0.SubVector(PenatlyOption.ALb.Count * 2, PenatlyOption.CLb.Count);
+        return CalcRmse(a, b, c);
+    }
+
     private Vector<double> CalcGeneratrix(Vector<double> a, Vector<double> b,  Vector<double> c)
     {
         var result = Vector<double>.Build.Dense(YRad.Count);

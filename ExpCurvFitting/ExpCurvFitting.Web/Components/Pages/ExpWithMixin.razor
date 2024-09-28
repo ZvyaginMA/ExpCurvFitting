@@ -1,0 +1,278 @@
+﻿@page "/expfitting"
+@rendermode InteractiveServer
+@using Microsoft.AspNetCore.Components.Forms
+@using ExpCurvFitting.Application
+@using ExpCurvFitting.Core.Models
+@using ExpCurvFitting.Core.RecognizingFunctions
+@using ExpCurvFitting.Web.Models
+@inject ExcelService _excelService
+
+
+<PageTitle>Exponents curve fitting</PageTitle>
+
+<h1>Восстановление полинома из экспонент</h1>
+
+<p><InputFile OnChange="HandleSelected" MaxAllowedSize="10485760" /></p>
+
+@if (inputData is not null)
+{
+    if (IsCalc == Status.NoStarted)
+    {
+        <p>Запустите расчет</p>
+        <tr>
+            <td>Количество экспонент</td>
+            <td><input type="number" @bind="numberOfExponents" /></td>
+        </tr>
+        <tr>
+            <td>Использовать слагаемое x^-2.5</td>
+            <td><input type="checkbox" @bind="UsePower"/></td>
+        </tr>
+    }
+    else if (IsCalc == Status.InProgress)
+    {
+        <p><em>Расчет...</em></p>
+    }
+    else
+    {
+            <tr>Tol: @($"{modelResult.TolValue:G6}")</tr>
+            <tr>Max Tol: @($"{modelResult.MinYRad:G4}")</tr>
+            <tr>RMSE: @($"{modelResult.RmseForCenter:G4}")</tr>
+            <tr>Время расчета: @($"{modelResult.TimeCalculation:F3} с.")</tr>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>a</th>
+                        <th>b</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in modelResult.GetPoints())
+                    {
+                        <tr>
+                            <td>@($"{item.Item1:G4}")</td>
+                            <td>@($"{item.Item2:G4}")</td>
+                        </tr>
+                    }
+                    @if (UsePower)
+                    {
+                        <tr>
+                            <td>c</td>
+                            <td>@($"{modelResult.C[0]:G4}")</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        
+            <tr>
+                <td>Количество экспонент</td>
+                <td><input type="number" @bind="numberOfExponents" /></td>
+            </tr>
+            <tr>
+                <td>Использовать слагаемое x^-2.5</td>
+                <td><input type="checkbox" @bind="UsePower"/></td>
+            </tr>
+    }
+    <table>
+        <tr>
+            <th>
+                <button @onclick="SetPenatlyOptions" class="btn btn-primary">Задать границы параметров</button>
+            </th>
+            <th>
+                <button @onclick="SetOptimizationOptions" class="btn btn-primary">Задать параметры оптимизации</button>
+            </th>
+            <th>
+                <button @onclick="Calc" class="btn btn-primary">Начать расчет</button>
+            </th>
+            @if (IsCalc == Status.InProgress)
+            {
+                <th>
+                    <button @onclick="StopCalc" class="btn btn-primary">Остановить расчет</button>
+                </th>
+            }
+        </tr>
+        </table>
+}
+
+@if (IsSettingOptimizationOptions)
+{
+    <tr>        
+        <td>Количество запусков</td>
+        <td><input type="text" @bind="optimizationOptions.CountMultistarts"/></td>    
+    </tr>    
+    <tr>            
+        <td>Норма градиента</td>
+        <td><input type="text" @bind="optimizationOptions.GradientTolerance"/></td>    
+    </tr> 
+    <tr>
+        <td>Количество шагов оптимизации</td>
+        <td> <input type="text" @bind="optimizationOptions.MaximumIterations"/></td>
+    </tr>   
+}
+
+@if (IsSettingPenatlyOptions)
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>a_lb</th>
+                <th>a_ub</th>
+                <th>b_lb</th>
+                <th>b_ub</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in penatlyOptions.Items)
+            {
+                <tr>
+                    <td><input type="text" @bind="item.ALb" /></td>
+                    <td><input type="text" @bind="item.AUb" /></td>
+                    <td><input type="text" @bind="item.BLb" /></td>
+                    <td><input type="text" @bind="item.BUb" /></td>
+                </tr>
+            }
+            @if (UsePower)
+            {
+                <tr>
+                    <th>c_lb</th>
+                    <td><input type="text" @bind="penatlyOptions.cLb" /></td>
+                    <th>c_ub </th>
+                    <td><input type="text" @bind="penatlyOptions.cUb" /></td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+
+@if (!IsLoading)
+{
+    <p>Загрузите данные</p>
+}
+else if (inputData == null)
+{
+    <p><em>Загрузка...</em></p>
+}
+else
+{
+    <p>@(inputData is not null ? $"Загружено {inputData.X.Length} точек" : "")</p>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>X</th>
+                <th>YMid</th>
+                <th>YRad</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in inputData!.GetPoints())
+            {
+                <tr>
+                    <td>@item.Item1</td>
+                    <td>@item.Item2</td>
+                    <td>@item.Item3</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+
+@code {
+    enum Status
+    {
+        NoStarted,
+        InProgress,
+        Done
+    };
+
+    private CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
+    private int numberOfExponents;
+    private ExcelService.Result inputData = null!;
+    private ExpWithMixinModel.Result modelResult = null!;
+    private OptimizationOptions optimizationOptions = new();
+    private bool IsLoading;
+    private Status IsCalc = Status.NoStarted;
+    private PenatlyOptionsDto? penatlyOptions = null;
+
+    private bool IsSettingPenatlyOptions;
+    private bool IsSettingOptimizationOptions;
+    private bool UsePower;
+
+    private async Task HandleSelected(InputFileChangeEventArgs e)
+    {
+        try
+        {
+            MemoryStream ms = new MemoryStream();
+            IsLoading = true;
+            await e.File.OpenReadStream().CopyToAsync(ms);
+            inputData = _excelService.LoadDateFromFile(ms);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+            IsLoading = false;
+        }
+    }
+
+    private void SetPenatlyOptions()
+    {
+        penatlyOptions = new PenatlyOptionsDto(numberOfExponents);
+        IsSettingPenatlyOptions = true;
+    }
+
+    private void StopCalc()
+    {
+        cancellationTokenSource.Cancel();
+        IsCalc = Status.NoStarted;
+        cancellationTokenSource = new CancellationTokenSource();
+    }
+
+    private void SetOptimizationOptions()
+    {
+        optimizationOptions = new OptimizationOptions();
+        IsSettingOptimizationOptions = true;
+    }
+
+    private async Task Calc()
+    {
+        try
+        {
+            var expModel = new ExpWithMixinModel(new List<Func<double, double>>()
+                {
+                    (t) => Math.Pow(t, -2.5),
+                });
+            if (numberOfExponents <= 0)
+            {
+                return;
+            }
+            if (penatlyOptions is null || numberOfExponents != penatlyOptions.NumberOfExp)
+            {
+                penatlyOptions = new PenatlyOptionsDto(numberOfExponents);
+            }
+            IsCalc = Status.InProgress;
+            if (!UsePower)
+            {
+                penatlyOptions.cLb = 0;
+                penatlyOptions.cUb = 0;
+            }
+            else
+            {
+                penatlyOptions.cUb = 100;
+            }
+            await expModel.FitForNonIntervalX(
+                inputData.X, 
+                inputData.YMid, 
+                inputData.YRad, 
+                penatlyOptions.GetPenatlyOptionsForMixin(), 
+                optimizationOptions,
+                cancellationTokenSource.Token);
+            modelResult = expModel.GetResult();
+            IsCalc = Status.Done;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+        }
+    }
+}

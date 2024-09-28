@@ -38,7 +38,10 @@ namespace ExpCurvFitting.Test
             var yLb = new DenseVector([2.51, 2.04, 1.67, 1.37, 1.12, 0.93]) - 0.1;
             var yUb = new DenseVector([2.51, 2.04, 1.67, 1.37, 1.12, 0.93]) + 0.1;
             var tol = new ExpTol(xLb, xUb, yLb, yUb);
-            var result = tol.Optimization(new RalgbSubgradientMinimizer(1e-5, 1000), new DenseVector([1.0, 2.0, 5.0, 4.0]));
+            var result = tol.Optimization(
+                new RalgbSubgradientMinimizer(1e-5, 1000), 
+                new DenseVector([1.0, 2.0, 5.0, 4.0]),
+                CancellationToken.None);
             result.TolValue.Should().BeInRange(0.0942, 0.0943);
         }
 
@@ -82,7 +85,10 @@ namespace ExpCurvFitting.Test
             };
 
             var tol = new ExpTolWithPenatly(xLb, xUb, yVector - yVectorRad, yVector + yVectorRad, penatlyOptions);
-            var result = tol.Optimization(new RalgbSubgradientMinimizer(1e-5, 1000), new DenseVector([1.0, 2.0, 2.0, 3.0]));
+            var result = tol.Optimization(
+                new RalgbSubgradientMinimizer(1e-5, 1000), 
+                new DenseVector([1.0, 2.0, 2.0, 3.0]),
+                CancellationToken.None);
 
             result.TolValue.Should().BeInRange(0.005, 0.006);
         }
@@ -115,7 +121,10 @@ namespace ExpCurvFitting.Test
             };
 
             var tol = new ExpTolWithPenatly(xLb, xUb, yVector - yVectorRad, yVector + yVectorRad, penatlyOptions);
-            var result = await tol.MultistartOptimization(new RalgbSubgradientMinimizer(1e-5, 1000),10, 4);
+            var result = await tol.MultistartOptimization(
+                new RalgbSubgradientMinimizer(1e-5, 1000),
+                10, 4,
+                CancellationToken.None);
 
             result.TolValue.Should().BeInRange(0.005, 0.006);
         }
@@ -146,7 +155,10 @@ namespace ExpCurvFitting.Test
             };
 
             var tol = new ExpTolWithPenatly(xLb, xUb, yVector - yVectorRad, yVector + yVectorRad, penatlyOptions);
-            var result = tol.Optimization(new RalgbSubgradientMinimizer(1e-5, 1000), new DenseVector([-0.11, -0.12, -0.13, -0.14]));
+            var result = tol.Optimization(
+                new RalgbSubgradientMinimizer(1e-5, 1000), 
+                new DenseVector([-0.11, -0.12, -0.13, -0.14]),
+                CancellationToken.None);
 
             result.TolValue.Should().BeInRange(0.005, 0.006);
         }

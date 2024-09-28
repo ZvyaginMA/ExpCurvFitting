@@ -9,6 +9,10 @@ namespace ExpCurvFitting.Web.Models
         public IEnumerable<double> AUb => Items.Select(i => i.AUb);
         public IEnumerable<double> BLb => Items.Select(i => i.BLb);
         public IEnumerable<double> BUb => Items.Select(i => i.BUb);
+        
+        public double cLb = 0;
+        public double cUb = 100;
+        
         public double CostA { get; set; } = 100;
         public double CostB { get; set; } = 100;
 
@@ -45,6 +49,22 @@ namespace ExpCurvFitting.Web.Models
                 AUb = new DenseVector(AUb.ToArray()),
                 BLb = new DenseVector(BLb.ToArray()),
                 BUb = new DenseVector(BUb.ToArray()),
+                CostA = CostA,
+                CostB = CostB,
+            };
+        }
+        
+        public PenatlyOptionsWithMixin GetPenatlyOptionsForMixin()
+        {
+            return new PenatlyOptionsWithMixin()
+            { 
+                ALb = new DenseVector(ALb.ToArray()),
+                AUb = new DenseVector(AUb.ToArray()),
+                BLb = new DenseVector(BLb.ToArray()),
+                BUb = new DenseVector(BUb.ToArray()),
+                CLb = new DenseVector([cLb]),
+                CUb = new DenseVector([cUb]),
+                CostC = CostA,
                 CostA = CostA,
                 CostB = CostB,
             };

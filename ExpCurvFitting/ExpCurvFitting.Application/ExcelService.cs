@@ -24,14 +24,17 @@ namespace ExpCurvFitting.Application
             }
             if (x is not null
                 && yMid is not null
-                && yMid is not null)
+                && yRad is not null)
             {
+                IEnumerable<double?> xx, yyMid, yyRad;
+                RemoveNullRows(x, yMid, yRad, out xx, out yyMid, out yyRad);
+
                 return new Result
                 {
                     IsSuccess = true,
-                    X = x.Select(x => x.Value).ToArray(),
-                    YMid = yMid.Select(x => x.Value).ToArray(),
-                    YRad = yRad.Select(x => x.Value).ToArray(),
+                    X = xx.Select(t => t!.Value).ToArray(),
+                    YMid = yyMid.Select(t => t!.Value).ToArray(),
+                    YRad = yyRad.Select(t => t!.Value).ToArray(),
                 };
             }
             else
@@ -41,6 +44,35 @@ namespace ExpCurvFitting.Application
                     IsSuccess = false,
                 };
             }
+        }
+
+        private static void RemoveNullRows(double?[] x, double?[] yMid, double?[] yRad, out IEnumerable<double?> newArray1, out IEnumerable<double?> newArray2, out IEnumerable<double?> newArray3)
+        {
+            var rowsToRemove = new List<int>();
+
+            for (int i = 0; i < x.Length; i++)
+            {
+                bool isNull1 = x[i] == null;
+                bool isNull2 = yMid[i] == null;
+                bool isNull3 = yRad[i] == null;
+
+                if ((isNull1 && !isNull2) || (isNull1 && !isNull3) ||
+                    (isNull2 && !isNull1) || (isNull2 && !isNull3) ||
+                    (isNull3 && !isNull1) || (isNull3 && !isNull2))
+                {
+                    throw new InvalidOperationException($"Ошибка: строка {i} содержит null в одном массиве и не содержит в другом.");
+                }
+
+                if (isNull1 && isNull2 && isNull3)
+                {
+                    rowsToRemove.Add(i);
+                }
+            }
+
+            // Создаем новые массивы, исключая строки с null
+            newArray1 = x.Where((x, index) => !rowsToRemove.Contains(index));
+            newArray2 = yMid.Where((x, index) => !rowsToRemove.Contains(index));
+            newArray3 = yRad.Where((x, index) => !rowsToRemove.Contains(index));
         }
 
         public record Result
