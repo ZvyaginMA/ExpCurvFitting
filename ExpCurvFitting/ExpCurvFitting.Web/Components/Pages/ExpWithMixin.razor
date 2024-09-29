@@ -12,7 +12,22 @@
 
 <h1>Восстановление полинома из экспонент</h1>
 
-<p><InputFile OnChange="HandleSelected" MaxAllowedSize="10485760" /></p>
+
+<p>
+    
+    <tr>
+        <td><InputFile OnChange="HandleSelected" MaxAllowedSize="10485760" /></td>
+        <td>
+            @if (inputData is null)
+            {
+                <a href="data_templates\data_template_exp.xlsx" download>Скачать пример входных данных</a>
+            }
+        </td>
+    </tr>
+</p>
+
+
+
 
 @if (inputData is not null)
 {

@@ -38,6 +38,9 @@
     <Content Update="wwwroot\bootstrap\bootstrap.min.css">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Update="wwwroot\exp_curv_fit.jpg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Update="wwwroot\favicon2.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

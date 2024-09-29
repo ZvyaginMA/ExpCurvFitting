@@ -26,8 +26,16 @@ namespace ExpCurvFitting.Application
                 && yMid is not null
                 && yRad is not null)
             {
-                IEnumerable<double?> xx, yyMid, yyRad;
+                IList<double?> xx, yyMid, yyRad;
                 RemoveNullRows(x, yMid, yRad, out xx, out yyMid, out yyRad);
+
+                for (int i = 0; i < xx.Count(); i++)
+                {
+                    if (Math.Abs(xx[i]!.Value) < 1e-12)
+                    {
+                        xx[i] = 1e-12;
+                    }
+                }
 
                 return new Result
                 {
@@ -46,7 +54,7 @@ namespace ExpCurvFitting.Application
             }
         }
 
-        private static void RemoveNullRows(double?[] x, double?[] yMid, double?[] yRad, out IEnumerable<double?> newArray1, out IEnumerable<double?> newArray2, out IEnumerable<double?> newArray3)
+        private static void RemoveNullRows(double?[] x, double?[] yMid, double?[] yRad, out IList<double?> newArray1, out IList<double?> newArray2, out IList<double?> newArray3)
         {
             var rowsToRemove = new List<int>();
 
@@ -70,9 +78,9 @@ namespace ExpCurvFitting.Application
             }
 
             // Создаем новые массивы, исключая строки с null
-            newArray1 = x.Where((x, index) => !rowsToRemove.Contains(index));
-            newArray2 = yMid.Where((x, index) => !rowsToRemove.Contains(index));
-            newArray3 = yRad.Where((x, index) => !rowsToRemove.Contains(index));
+            newArray1 = x.Where((x, index) => !rowsToRemove.Contains(index)).ToList();
+            newArray2 = yMid.Where((x, index) => !rowsToRemove.Contains(index)).ToList();
+            newArray3 = yRad.Where((x, index) => !rowsToRemove.Contains(index)).ToList();
         }
 
         public record Result
