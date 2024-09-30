@@ -1,0 +1,20 @@
+version: '3'
+
+networks:
+  dev:
+
+services:
+  nginx:
+    image: nginx:latest
+    ports:
+      - "80:80"  # Обратите внимание, здесь используется ports, а не port
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf
+    restart: always
+    networks:
+      - dev
+
+  app:
+    build: .
+    networks:
+      - dev
