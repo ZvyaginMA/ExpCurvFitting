@@ -1,0 +1,117 @@
+﻿using OfficeOpenXml;
+using System.Collections;
+
+namespace ExpCurvFitting.Application
+{
+    public class ExcelService
+    {
+        public ExcelService() {
+
+        }
+
+        public Result LoadDateFromFile(Stream file)
+        {
+            double?[] x = null!;
+            double?[] yMid = null!;
+            double?[] yRad = null!;
+
+            using (var package = new ExcelPackage(file))
+            {
+                var worksheet = package.Workbook.Worksheets[0];
+                x = worksheet.Cells[2, 1, worksheet.Dimension.End.Row, 1].Select(cell => cell.Value as double?).ToArray();
+                yMid = worksheet.Cells[2, 2, worksheet.Dimension.End.Row, 2].Select(cell => cell.Value as double?).ToArray();
+                yRad = worksheet.Cells[2, 3, worksheet.Dimension.End.Row, 3].Select(cell => cell.Value as double?).ToArray();
+            }
+            if (x is not null
+                && yMid is not null
+                && yRad is not null)
+            {
+<<<<<<< HEAD
+                IList<double?> xx, yyMid, yyRad;
+                RemoveNullRows(x, yMid, yRad, out xx, out yyMid, out yyRad);
+
+                for (int i = 0; i < xx.Count(); i++)
+                {
+                    if (Math.Abs(xx[i]!.Value) < 1e-12)
+                    {
+                        xx[i] = 1e-12;
+                    }
+                }
+
+=======
+                IEnumerable<double?> xx, yyMid, yyRad;
+                RemoveNullRows(x, yMid, yRad, out xx, out yyMid, out yyRad);
+
+>>>>>>> ExpCurvFitC#/master
+                return new Result
+                {
+                    IsSuccess = true,
+                    X = xx.Select(t => t!.Value).ToArray(),
+                    YMid = yyMid.Select(t => t!.Value).ToArray(),
+                    YRad = yyRad.Select(t => t!.Value).ToArray(),
+                };
+            }
+            else
+            {
+                return new Result
+                {
+                    IsSuccess = false,
+                };
+            }
+        }
+
+<<<<<<< HEAD
+        private static void RemoveNullRows(double?[] x, double?[] yMid, double?[] yRad, out IList<double?> newArray1, out IList<double?> newArray2, out IList<double?> newArray3)
+=======
+        private static void RemoveNullRows(double?[] x, double?[] yMid, double?[] yRad, out IEnumerable<double?> newArray1, out IEnumerable<double?> newArray2, out IEnumerable<double?> newArray3)
+>>>>>>> ExpCurvFitC#/master
+        {
+            var rowsToRemove = new List<int>();
+
+            for (int i = 0; i < x.Length; i++)
+            {
+                bool isNull1 = x[i] == null;
+                bool isNull2 = yMid[i] == null;
+                bool isNull3 = yRad[i] == null;
+
+                if ((isNull1 && !isNull2) || (isNull1 && !isNull3) ||
+                    (isNull2 && !isNull1) || (isNull2 && !isNull3) ||
+                    (isNull3 && !isNull1) || (isNull3 && !isNull2))
+                {
+                    throw new InvalidOperationException($"Ошибка: строка {i} содержит null в одном массиве и не содержит в другом.");
+                }
+
+                if (isNull1 && isNull2 && isNull3)
+                {
+                    rowsToRemove.Add(i);
+                }
+            }
+
+            // Создаем новые массивы, исключая строки с null
+<<<<<<< HEAD
+            newArray1 = x.Where((x, index) => !rowsToRemove.Contains(index)).ToList();
+            newArray2 = yMid.Where((x, index) => !rowsToRemove.Contains(index)).ToList();
+            newArray3 = yRad.Where((x, index) => !rowsToRemove.Contains(index)).ToList();
+=======
+            newArray1 = x.Where((x, index) => !rowsToRemove.Contains(index));
+            newArray2 = yMid.Where((x, index) => !rowsToRemove.Contains(index));
+            newArray3 = yRad.Where((x, index) => !rowsToRemove.Contains(index));
+>>>>>>> ExpCurvFitC#/master
+        }
+
+        public record Result
+        {
+            public bool IsSuccess { get; init; }
+            public double[] X { get; init; }
+            public double[] YMid { get; init; }
+            public double[] YRad { get; init; }
+
+            public IEnumerable<(double, double, double)> GetPoints()
+            {
+                for (int i = 0; i < X.Length; i++) {
+                    yield return new(X[i], YMid[i], YRad[i]);
+                }
+            }
+        }
+    }
+}
