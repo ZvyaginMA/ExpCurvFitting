@@ -90,6 +90,7 @@ namespace ExpCurvFitting.Application
             public double[] YMid { get; init; }
             public double[] YRad { get; init; }
 
+            public int DataId = new Random().Next();
             public IEnumerable<(double, double, double)> GetPoints()
             {
                 for (int i = 0; i < X.Length; i++) {
