@@ -1,10 +1,12 @@
 ﻿@page "/expfitting"
 @rendermode InteractiveServer
+@implements IDisposable
 @using Microsoft.AspNetCore.Components.Forms
 @using ExpCurvFitting.Application
 @using ExpCurvFitting.Core.Models
 @using ExpCurvFitting.Core.RecognizingFunctions
 @using ExpCurvFitting.Web.Models
+@using Serilog;
 @inject ExcelService _excelService
 
 
@@ -12,7 +14,7 @@
 
 <h1>Восстановление полинома из экспонент</h1>
 
-<p> 
+<p>
     <tr>
         <td><InputFile OnChange="HandleSelected" MaxAllowedSize="10485760" /></td>
         <td>
@@ -36,7 +38,7 @@
         </tr>
         <tr>
             <td>Использовать слагаемое x^-2.5</td>
-            <td><input type="checkbox" @bind="UsePower"/></td>
+            <td><input type="checkbox" @bind="UsePower" /></td>
         </tr>
     }
     else if (IsCalc == Status.InProgress)
@@ -45,43 +47,43 @@
     }
     else
     {
-            <tr>Tol: @($"{modelResult.TolValue:G6}")</tr>
-            <tr>Max Tol: @($"{modelResult.MinYRad:G4}")</tr>
-            <tr>RMSE: @($"{modelResult.RmseForCenter:G4}")</tr>
-            <tr>Время расчета: @($"{modelResult.TimeCalculation:F3} с.")</tr>
-            <table class="table">
-                <thead>
+        <tr>Tol: @($"{modelResult.TolValue:G6}")</tr>
+        <tr>Max Tol: @($"{modelResult.MinYRad:G4}")</tr>
+        <tr>RMSE: @($"{modelResult.RmseForCenter:G4}")</tr>
+        <tr>Время расчета: @($"{modelResult.TimeCalculation:F3} с.")</tr>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>a</th>
+                    <th>b</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in modelResult.GetPoints())
+                {
                     <tr>
-                        <th>a</th>
-                        <th>b</th>
+                        <td>@($"{item.Item1:G4}")</td>
+                        <td>@($"{item.Item2:G4}")</td>
                     </tr>
-                </thead>
-                <tbody>
-                    @foreach (var item in modelResult.GetPoints())
-                    {
-                        <tr>
-                            <td>@($"{item.Item1:G4}")</td>
-                            <td>@($"{item.Item2:G4}")</td>
-                        </tr>
-                    }
-                    @if (UsePower)
-                    {
-                        <tr>
-                            <td>c</td>
-                            <td>@($"{modelResult.C[0]:G4}")</td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
-        
-            <tr>
-                <td>Количество экспонент</td>
-                <td><input type="number" @bind="numberOfExponents" /></td>
-            </tr>
-            <tr>
-                <td>Использовать слагаемое x^-2.5</td>
-                <td><input type="checkbox" @bind="UsePower"/></td>
-            </tr>
+                }
+                @if (UsePower)
+                {
+                    <tr>
+                        <td>c</td>
+                        <td>@($"{modelResult.C[0]:G4}")</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+        <tr>
+            <td>Количество экспонент</td>
+            <td><input type="number" @bind="numberOfExponents" /></td>
+        </tr>
+        <tr>
+            <td>Использовать слагаемое x^-2.5</td>
+            <td><input type="checkbox" @bind="UsePower" /></td>
+        </tr>
     }
     <table>
         <tr>
@@ -101,23 +103,23 @@
                 </th>
             }
         </tr>
-        </table>
+    </table>
 }
 
 @if (IsSettingOptimizationOptions)
 {
-    <tr>        
+    <tr>
         <td>Количество запусков</td>
-        <td><input type="text" @bind="optimizationOptions.CountMultistarts"/></td>    
-    </tr>    
-    <tr>            
+        <td><input type="text" @bind="optimizationOptions.CountMultistarts" /></td>
+    </tr>
+    <tr>
         <td>Норма градиента</td>
-        <td><input type="text" @bind="optimizationOptions.GradientTolerance"/></td>    
-    </tr> 
+        <td><input type="text" @bind="optimizationOptions.GradientTolerance" /></td>
+    </tr>
     <tr>
         <td>Количество шагов оптимизации</td>
-        <td> <input type="text" @bind="optimizationOptions.MaximumIterations"/></td>
-    </tr>   
+        <td> <input type="text" @bind="optimizationOptions.MaximumIterations" /></td>
+    </tr>
 }
 
 @if (IsSettingPenatlyOptions)
@@ -215,13 +217,15 @@ else
         try
         {
             MemoryStream ms = new MemoryStream();
+            Log.Logger.Information("Данные загружаются");
             IsLoading = true;
             await e.File.OpenReadStream().CopyToAsync(ms);
             inputData = _excelService.LoadDateFromFile(ms);
+            Log.Logger.Information("Данные прочитаны. Id данных {id} Количество точек {count}", inputData.DataId ,inputData.X.Length);
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex);
+            Log.Logger.Error("Ошибка при загрузке {ex}", ex);
             IsLoading = false;
         }
     }
@@ -236,6 +240,7 @@ else
     {
         cancellationTokenSource.Cancel();
         IsCalc = Status.NoStarted;
+        Log.Logger.Information("Расчет остановлен для {id}", inputData.DataId);
         cancellationTokenSource = new CancellationTokenSource();
     }
 
@@ -243,6 +248,11 @@ else
     {
         optimizationOptions = new OptimizationOptions();
         IsSettingOptimizationOptions = true;
+    }
+
+    public void Dispose()
+    {
+        cancellationTokenSource.Cancel();
     }
 
     private async Task Calc()
@@ -271,19 +281,23 @@ else
             {
                 penatlyOptions.cUb = 100;
             }
+            Log.Logger.Information("Расчет запущен для {id}", inputData.DataId);
+
             await expModel.FitForNonIntervalX(
-                inputData.X, 
-                inputData.YMid, 
-                inputData.YRad, 
-                penatlyOptions.GetPenatlyOptionsForMixin(), 
+                inputData.X,
+                inputData.YMid,
+                inputData.YRad,
+                penatlyOptions.GetPenatlyOptionsForMixin(),
                 optimizationOptions,
                 cancellationTokenSource.Token);
             modelResult = expModel.GetResult();
             IsCalc = Status.Done;
+            Log.Logger.Information("Расчет завершен для {id}. Rmse {rmse}. Время на расчет {time}", inputData.DataId, modelResult.RmseForCenter, modelResult.TimeCalculation);
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex);
+            Log.Logger.Error("Ошибка {ex} в расчетах для {id}", ex, inputData.DataId);
+            IsCalc = Status.NoStarted;
         }
     }
 }

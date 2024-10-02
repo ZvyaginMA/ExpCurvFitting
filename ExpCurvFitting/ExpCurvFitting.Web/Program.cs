@@ -1,8 +1,20 @@
 using ExpCurvFitting.Web.Components;
 using ExpCurvFitting.Application;
 using ExpCurvFitting.Core.Models;
+using Serilog.Events;
+using Serilog.Formatting.Json;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
+
+Log.Logger = new LoggerConfiguration()
+                            .WriteTo.Console()
+                            .WriteTo.File(new JsonFormatter(), "important.json")
+                            .WriteTo.File("all.logs",
+                                          restrictedToMinimumLevel: LogEventLevel.Warning,
+                                          rollingInterval: RollingInterval.Day)
+                            .MinimumLevel.Debug()
+                            .CreateLogger();
 
 // Add services to the container.
 builder.Services.AddRazorComponents()
