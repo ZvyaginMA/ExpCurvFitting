@@ -7,7 +7,8 @@
 @using ExpCurvFitting.Core.RecognizingFunctions
 @using ExpCurvFitting.Web.Models
 @using Serilog;
-@inject ExcelService _excelService
+@using ExpCurvFitting.Application.Excel;
+@inject IExcelService _excelService
 
 
 <PageTitle>Exponents curve fitting</PageTitle>
@@ -167,7 +168,7 @@ else if (inputData == null)
 }
 else
 {
-    <p>@(inputData is not null ? $"Загружено {inputData.X.Length} точек" : "")</p>
+    <p>@(inputData is not null ? $"Загружено {inputData.X.Count} точек" : "")</p>
 
     <table class="table">
         <thead>
@@ -201,7 +202,7 @@ else
 
     private CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
     private int numberOfExponents;
-    private ExcelService.Result inputData = null!;
+    private Result inputData = null!;
     private ExpWithMixinModel.Result modelResult = null!;
     private OptimizationOptions optimizationOptions = new();
     private bool IsLoading;
@@ -221,7 +222,7 @@ else
             IsLoading = true;
             await e.File.OpenReadStream().CopyToAsync(ms);
             inputData = _excelService.LoadDateFromFile(ms);
-            Log.Logger.Information("Данные прочитаны. Id данных {id} Количество точек {count}", inputData.DataId ,inputData.X.Length);
+            Log.Logger.Information("Данные прочитаны. Id данных {id} Количество точек {count}", inputData.DataId ,inputData.X.Count);
         }
         catch (Exception ex)
         {
@@ -259,9 +260,10 @@ else
     {
         try
         {
+            Func<double, double> mixin = UsePower ? (t) => Math.Pow(t, -2.5) : (t) => 0;
             var expModel = new ExpWithMixinModel(new List<Func<double, double>>()
                 {
-                    (t) => Math.Pow(t, -2.5),
+                    mixin,
                 });
             if (numberOfExponents <= 0)
             {

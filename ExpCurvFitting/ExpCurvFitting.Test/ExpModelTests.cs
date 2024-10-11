@@ -7,7 +7,7 @@ namespace ExpCurvFitting.Test
     public class ExpModelTests
     {
         [Fact]
-        public async Task Test()
+        public async Task ExpModel_SuccessCalc()
         {
             var x = new DenseVector([1.0, 2.0, 3, 4, 5, 6]);
             var yMid = new DenseVector([2.51, 2.04, 1.67, 1.37, 1.12, 0.93]);
