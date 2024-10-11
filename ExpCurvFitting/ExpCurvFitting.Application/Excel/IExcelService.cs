@@ -1,5 +1,4 @@
-﻿
-namespace ExpCurvFitting.Application
+﻿namespace ExpCurvFitting.Application.Excel
 {
     public interface IExcelService
     {

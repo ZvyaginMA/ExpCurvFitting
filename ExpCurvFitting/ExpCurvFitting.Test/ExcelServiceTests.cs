@@ -1,4 +1,4 @@
-﻿using ExpCurvFitting.Application;
+﻿using ExpCurvFitting.Application.Excel;
 using FluentAssertions;
 
 namespace ExpCurvFitting.Test

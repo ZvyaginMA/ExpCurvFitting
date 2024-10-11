@@ -168,7 +168,7 @@ else if (inputData == null)
 }
 else
 {
-    <p>@(inputData is not null ? $"Загружено {inputData.X.Length} точек" : "")</p>
+    <p>@(inputData is not null ? $"Загружено {inputData.X.Count} точек" : "")</p>
 
     <table class="table">
         <thead>
@@ -222,7 +222,7 @@ else
             IsLoading = true;
             await e.File.OpenReadStream().CopyToAsync(ms);
             inputData = _excelService.LoadDateFromFile(ms);
-            Log.Logger.Information("Данные прочитаны. Id данных {id} Количество точек {count}", inputData.DataId ,inputData.X.Length);
+            Log.Logger.Information("Данные прочитаны. Id данных {id} Количество точек {count}", inputData.DataId ,inputData.X.Count);
         }
         catch (Exception ex)
         {
@@ -260,9 +260,10 @@ else
     {
         try
         {
+            Func<double, double> mixin = UsePower ? (t) => Math.Pow(t, -2.5) : (t) => 0;
             var expModel = new ExpWithMixinModel(new List<Func<double, double>>()
                 {
-                    (t) => Math.Pow(t, -2.5),
+                    mixin,
                 });
             if (numberOfExponents <= 0)
             {
