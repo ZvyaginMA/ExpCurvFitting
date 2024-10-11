@@ -83,5 +83,6 @@ namespace ExpCurvFitting.Application
             newArray2 = yMid.Where((x, index) => !rowsToRemove.Contains(index)).ToList();
             newArray3 = yRad.Where((x, index) => !rowsToRemove.Contains(index)).ToList();
         }
+            public int DataId = new Random().Next();
     }
 }
