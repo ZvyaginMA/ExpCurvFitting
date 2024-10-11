@@ -3,7 +3,7 @@
 using ExcelDataReader;
 using System.Data;
 
-namespace ExpCurvFitting.Application
+namespace ExpCurvFitting.Application.Excel
 {
     public class ExcelService : IExcelService
     {
@@ -57,7 +57,7 @@ namespace ExpCurvFitting.Application
             var rowsToRemove = new List<int>();
             if(!(x.Count == yMid.Count && yMid.Count == yRad.Count))
             {
-                throw new ArgumentException("Несовпадает количество входных данных");
+                throw new ArgumentException("Не совпадает количество входных данных");
             }
 
             for (int i = 0; i < x.Count; i++)
