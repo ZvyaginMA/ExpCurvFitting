@@ -19,7 +19,7 @@ Log.Logger = new LoggerConfiguration()
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
-builder.Services.AddTransient<ExcelService>();
+builder.Services.AddTransient<IExcelService, ExcelService>();
 builder.Services.AddTransient<ExpModel>();
 
 var app = builder.Build();
