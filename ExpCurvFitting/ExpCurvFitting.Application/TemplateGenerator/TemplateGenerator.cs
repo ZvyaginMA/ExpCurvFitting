@@ -1,4 +1,7 @@
-﻿namespace ExpCurvFitting.Application.TemplateGenerator
+﻿using static ExpCurvFitting.Application.TemplateGenerator.TemplateGenerator;
+using System.Reflection.PortableExecutable;
+
+namespace ExpCurvFitting.Application.TemplateGenerator
 {
     public class TemplateGenerator : ITemplateGenerator
     {
@@ -20,36 +23,17 @@
         {
             var headers = new List<string>();
 
-            for (int i = 0; i < command.CountInputVariable; i++)
-            {
-                if (command.IsIntervalInput)
-                {
-                    if (command.IntervalPresentation == IntervalPresentation.Bounds)
-                    {
-                        var firstHeader = $"x_{i + 1}_lb" ;
-                        var secondHeader = $"x_{i + 1}_ub";
-                        headers.Add(firstHeader);
-                        headers.Add(secondHeader);
-                    }
-                    else if (command.IntervalPresentation == IntervalPresentation.MidRad)
-                    {
-                        var firstHeader = $"x_{i + 1}_mid";
-                        var secondHeader = $"x_{i + 1}_rad";
-                        headers.Add(firstHeader);
-                        headers.Add(secondHeader);
-                    }
-                    else
-                    {
-                        throw new NotImplementedException();
-                    }
-                }
-                else
-                {
-                    var xHeader = "x_" + (i + 1);
-                    headers.Add(xHeader);
-                }
-            }
+            AddInputHeaders(headers, command);
+            AddOutputHeaders(headers, command);
 
+            return new Result
+            {
+                Headers = headers,
+            };
+        }
+
+        private void AddOutputHeaders(IList<string> headers, Command command)
+        {
             if (command.IsIntervalOutput)
             {
                 if (command.IntervalPresentation == IntervalPresentation.Bounds)
@@ -76,11 +60,45 @@
                 var yHeader = "y";
                 headers.Add(yHeader);
             }
+        }
 
-            return new Result
+        private void AddInputHeaders(IList<string> headers, Command command)
+        {
+            if (command.IsIntervalInput)
             {
-                Headers = headers,
-            };
+                if (command.IntervalPresentation == IntervalPresentation.Bounds)
+                {
+                    for (int i = 0; i < command.CountInputVariable; i++)
+                    {
+                        var firstHeader = $"x_{i + 1}_lb";
+                        var secondHeader = $"x_{i + 1}_ub";
+                        headers.Add(firstHeader);
+                        headers.Add(secondHeader);
+                    }
+                }
+                else if (command.IntervalPresentation == IntervalPresentation.MidRad)
+                {
+                    for (int i = 0; i < command.CountInputVariable; i++)
+                    {
+                        var firstHeader = $"x_{i + 1}_mid";
+                        var secondHeader = $"x_{i + 1}_rad";
+                        headers.Add(firstHeader);
+                        headers.Add(secondHeader);
+                    }
+                }
+                else
+                {
+                    throw new NotImplementedException();
+                }
+            }
+            else
+            {
+                for (int i = 0; i < command.CountInputVariable; i++)
+                {
+                    var xHeader = "x_" + (i + 1);
+                    headers.Add(xHeader);
+                }
+            }
         }
 
         public record Result
