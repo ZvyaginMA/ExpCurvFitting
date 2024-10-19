@@ -5,16 +5,19 @@ networks:
 
 services:
   nginx:
-    image: nginx:latest
+    image: nginx:stable-alpline
     ports:
-      - "80:80"  # Обратите внимание, здесь используется ports, а не port
+      - "80:80" 
+    depends_on:
+      - frontend
+    
     volumes:
       - ./nginx.conf:/etc/nginx/conf.d/default.conf
     restart: always
     networks:
       - dev
 
-  app:
+  frontend:
     build: .
     networks:
       - dev
