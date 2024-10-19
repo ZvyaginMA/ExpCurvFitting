@@ -1,6 +1,4 @@
-﻿
-
-using ExcelDataReader;
+﻿using ExcelDataReader;
 using System.Data;
 
 namespace ExpCurvFitting.Application.Excel
@@ -14,7 +12,6 @@ namespace ExpCurvFitting.Application.Excel
             using var excelReader = ExcelReaderFactory.CreateReader(file);
             var dataSet = excelReader.AsDataSet();
 
-
             var x = new List<double?>();
             var yMid = new List<double?>();
             var yRad = new List<double?>();
@@ -26,7 +23,6 @@ namespace ExpCurvFitting.Application.Excel
                 yMid.Add(row[1] as double?);
                 yRad.Add(row[2] as double?);
             }
-
 
             if (x.Any()
                 && yMid.Any()
