@@ -1,9 +1,6 @@
-﻿using static ExpCurvFitting.Application.TemplateGenerator.TemplateGenerator;
-using System.Reflection.PortableExecutable;
-
-namespace ExpCurvFitting.Application.TemplateGenerator
+﻿namespace ExpCurvFitting.Application.TemplateHeadersGenerator
 {
-    public class TemplateGenerator : ITemplateGenerator
+    public class TemplateHeadersGenerator : ITemplateHeadersGenerator
     {
         public enum IntervalPresentation
         {
@@ -22,10 +19,8 @@ namespace ExpCurvFitting.Application.TemplateGenerator
         public Result Handle(Command command)
         {
             var headers = new List<string>();
-
             AddInputHeaders(headers, command);
             AddOutputHeaders(headers, command);
-
             return new Result
             {
                 Headers = headers,
@@ -100,7 +95,6 @@ namespace ExpCurvFitting.Application.TemplateGenerator
                 }
             }
         }
-
         public record Result
         {
             public IReadOnlyList<string> Headers { get; init; } = null!;
