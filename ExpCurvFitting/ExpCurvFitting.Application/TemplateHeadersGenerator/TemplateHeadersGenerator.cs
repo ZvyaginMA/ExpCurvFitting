@@ -1,19 +1,10 @@
 ﻿namespace ExpCurvFitting.Application.TemplateHeadersGenerator
 {
-    public class TemplateHeadersGenerator : ITemplateHeadersGenerator
+    public partial class TemplateHeadersGenerator : ITemplateHeadersGenerator
     {
-        public enum IntervalPresentation
-        {
-            Bounds = 0,
-            MidRad = 1,
-        }
-
         public record Command
         {
-            public IntervalPresentation IntervalPresentation { get; init; } = IntervalPresentation.Bounds;
-            public bool IsIntervalInput { get; init; } = true;
-            public bool IsIntervalOutput { get; init; } = true;
-            public int CountInputVariable { get; init; } = 1;
+            public InputDataConfiguration dataConfiguration { get; init; }
         }
 
         public Result Handle(Command command)
