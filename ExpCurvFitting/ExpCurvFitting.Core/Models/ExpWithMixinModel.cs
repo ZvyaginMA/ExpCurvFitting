@@ -2,15 +2,16 @@
 using ExpCurvFitting.Core.Optimization;
 using MathNet.Numerics.LinearAlgebra;
 using MathNet.Numerics.LinearAlgebra.Double;
+using ExpCurvFitting.Core.FunctionalExtensions;
 
 namespace ExpCurvFitting.Core.Models;
 public record ExpWithMixinModel
 {
     public OptimizationWithMixinResult FittingResult { get; private set; }
-    public readonly IList<Func<double, double>> _mixinFunctions;
+    public readonly IList<IIntervalExtensions> _mixinFunctions;
     
     public ExpWithMixinModel(
-        IList<Func<double, double>> mixinFunctions)
+        IList<IIntervalExtensions> mixinFunctions)
     {
         _mixinFunctions = mixinFunctions;
     }

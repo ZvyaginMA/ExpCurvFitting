@@ -1,4 +1,5 @@
-﻿using ExpCurvFitting.Core.Models;
+﻿using ExpCurvFitting.Core.FunctionalExtensions;
+using ExpCurvFitting.Core.Models;
 using ExpCurvFitting.Core.Optimization;
 using ExpCurvFitting.Core.RecognizingFunctions;
 using FluentAssertions;
@@ -36,11 +37,11 @@ public class TolMixinTests
             CostC = 20,
         };
 
-        var mixins = new List<Func<double, double>>()
+        var mixins = new List<IIntervalExtensions>()
         {
-            (t) => Math.Pow(t, -2.5), 
+            new MonotonicFunction((t) => Math.Pow(t, -2.5)),
         };
-        
+
         var tol = new ExpTolWithPenatlyAndMixin(
             x, x, yMid - yRad, yMid + yRad,
             penatlyOptions,
@@ -91,11 +92,11 @@ public class TolMixinTests
             CostC = 20,
         };
 
-        var mixins = new List<Func<double, double>>()
+        var mixins = new List<IIntervalExtensions>()
         {
-            (t) => Math.Pow(t, -2.5), 
+            new MonotonicFunction((t) => Math.Pow(t, -2.5)),
         };
-        
+
         var tol = new ExpTolWithPenatlyAndMixin(
             x, x, yMid - yRad, yMid + yRad,
             penatlyOptions,
