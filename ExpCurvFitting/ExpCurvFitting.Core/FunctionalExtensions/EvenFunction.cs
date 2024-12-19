@@ -14,7 +14,7 @@
         {
             var f1 = _function(lowerBound);
             var f2 = _function(upperBound);
-            var points = f1 * f2 < 0 ? [f1, _function(0), f2] : new [] { f1, f2 };
+            var points = lowerBound * upperBound < 0 ? [f1, _function(0), f2] : new [] { f1, f2 };
             var lb = points.Min();
             var ub = points.Max();
             return 0.5 * (lb + ub);
@@ -24,7 +24,7 @@
         {
             var f1 = _function(lowerBound);
             var f2 = _function(upperBound);
-            var points = f1 * f2 < 0 ? [f1, _function(0), f2] : new[] { f1, f2 };
+            var points = lowerBound * upperBound < 0 ? [f1, _function(0), f2] : new[] { f1, f2 };
             var lb = points.Min();
             var ub = points.Max();
             return 0.5 * (ub - lb);
