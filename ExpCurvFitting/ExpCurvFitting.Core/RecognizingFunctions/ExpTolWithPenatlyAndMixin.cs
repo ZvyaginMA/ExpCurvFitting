@@ -133,7 +133,8 @@ public record ExpTolWithPenatlyAndMixin : ExpTol
         var grad = -0.5 * (eLb - eUb)
                    - 0.5 * (eLb + eUb)
                          * Math.Sign(0.5 * (eLb + eUb).DotProduct(a) + mixinMid - YMid[indexMin]);
-        return grad + GradAPenatly(a);
+        var bv = GradAPenatly(a);
+        return grad + bv;
     }
     public Vector<double> GradB(Vector<double> a, Vector<double> b, Vector<double> c)
     {

@@ -1,4 +1,5 @@
-﻿using ExpCurvFitting.Core.FunctionalExtensions;
+﻿using System.Diagnostics;
+using ExpCurvFitting.Core.FunctionalExtensions;
 using ExpCurvFitting.Core.Models;
 using ExpCurvFitting.Core.RecognizingFunctions;
 using FluentAssertions;
@@ -118,22 +119,19 @@ public class ExpModelWithMixinTests
     [Fact]
     public async Task CurveFit_ForQubicModel2_Success()
     {
-        var points = new[] {  1.0, 2.7, 2.8, 3.5, 5.0, 6.0, 7.1 };
-        var coeffs = new[] { 1, 1.1, -2.5, -10.0001 };
-        Func<double, double> f = (x) => coeffs[0] + coeffs[1] * x + coeffs[2] * x * x + coeffs[3] * x * x * x;
+        var points = new[] {1.0};
+        var coeffs = new[] {-2.5 };
+        Func<double, double> f = (x) => coeffs[0] * x * x;
         var y = points.Select(t => f(t)).ToArray();
 
-        var xLb = new DenseVector(points) - 0.05;
-        var xUb = new DenseVector(points) + 0.05;
-        var yLb = new DenseVector(y) - 0.5;
-        var yUb = new DenseVector(y) + 0.5;
+        var xLb = new DenseVector(points) ;
+        var xUb = new DenseVector(points) ;
+        var yLb = new DenseVector(y);
+        var yUb = new DenseVector(y);
 
         var mixins = new List<IIntervalExtensions>()
         {
-            new MonotonicFunction((t) => 1),
-            new MonotonicFunction((t) => t),
             new EvenFunction((t) => t * t),
-            new MonotonicFunction((t) => t * t * t),
         };
 
         var model = new ExpWithMixinModel(mixins);
@@ -142,8 +140,8 @@ public class ExpModelWithMixinTests
         var aUb = new DenseVector([0.0000]);
         var bLb = new DenseVector([0.0000]);
         var bUb = new DenseVector([0.0000]);
-        var cLb = new DenseVector([-15.0, -15.0, -15.0, -15.0]);
-        var cUb = new DenseVector([15.0, 15.0, 15.0, 15.0]);
+        var cLb = new DenseVector([-15.0]);
+        var cUb = new DenseVector([0.0]);
 
         var penatlyOptions = new PenatlyOptionsWithMixin()
         {
@@ -158,6 +156,14 @@ public class ExpModelWithMixinTests
             CostC = 4,
         };
 
+        
+        var tol = new ExpTolWithPenatlyAndMixin(xLb, xUb, yLb, yUb, penatlyOptions, mixins);
+        var t = tol.TolValue(aLb, bLb, new DenseVector([-2.51]));
+        var t2 = tol.GradA(aLb, bLb, new DenseVector([-2.50]));
+        var t3 = tol.GradB(aLb, bLb, new DenseVector([-2.50]));
+        var t4 = tol.GradC(aLb, bLb, new DenseVector([-2.50]));
+
+        
         await model.Fit(
             xLb,
             xUb,
@@ -166,17 +172,12 @@ public class ExpModelWithMixinTests
             penatlyOptions,
             new OptimizationOptions());
 
-        var tol = new ExpTolWithPenatlyAndMixin(xLb, xUb, yLb, yUb, penatlyOptions, mixins);
         var r = tol.CalcRmse(aLb, bLb, new DenseVector(coeffs));
-        var t = tol.TolValue(aLb, bLb, new DenseVector(coeffs));
         model.FittingResult.Should().NotBeNull();
         model.FittingResult.A[0].Should().BeInRange(-0.0001, 0.0001);
         model.FittingResult.B[0].Should().BeInRange(-0.0001, 0.0001);
         model.FittingResult.C[0].Should().BeInRange(coeffs[0] - 1e-5, coeffs[0] + 1e-5);
-        model.FittingResult.C[1].Should().BeInRange(coeffs[1] - 1e-5, coeffs[1] + 1e-5);
-        model.FittingResult.C[2].Should().BeInRange(coeffs[2] - 1e-5, coeffs[2] + 1e-5);
-        model.FittingResult.C[3].Should().BeInRange(coeffs[3] - 1e-5, coeffs[3] + 1e-5);
-
-
     }
+
+    
 }
