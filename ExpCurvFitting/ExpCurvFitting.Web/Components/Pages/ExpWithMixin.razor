@@ -6,6 +6,7 @@
 @using ExpCurvFitting.Core.Models
 @using ExpCurvFitting.Core.RecognizingFunctions
 @using ExpCurvFitting.Web.Models
+@using ExpCurvFitting.Core.FunctionalExtensions
 @using Serilog;
 @using ExpCurvFitting.Application.Excel;
 @inject IExcelService _excelService
@@ -261,10 +262,11 @@ else
         try
         {
             Func<double, double> mixin = UsePower ? (t) => Math.Pow(t, -2.5) : (t) => 0;
-            var expModel = new ExpWithMixinModel(new List<Func<double, double>>()
-                {
-                    mixin,
-                });
+            var mixins = new List<IIntervalExtensions>()
+            {
+                new MonotonicFunction(UsePower ? (t) => Math.Pow(t, -2.5) : (t) => 0),
+            };
+            var expModel = new ExpWithMixinModel(mixins);
             if (numberOfExponents <= 0)
             {
                 return;
