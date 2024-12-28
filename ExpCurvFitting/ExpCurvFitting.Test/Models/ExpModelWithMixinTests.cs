@@ -71,10 +71,10 @@ public class ExpModelWithMixinTests
 
         var mixins = new List<IIntervalExtensions>()
         {
-            new MonotonicFunction((t) => 1),
-            new MonotonicFunction((t) => t),
-            new EvenFunction((t) => t * t),
-            new MonotonicFunction((t) => t * t * t),
+            new MonotonicFunction((t) => Math.Pow(t, 0)),
+            new MonotonicFunction((t) => Math.Pow(t, 1)),
+            new UnimodalFunction((t) => Math.Pow(t, 2)),
+            new MonotonicFunction((t) => Math.Pow(t, 3)),
         };
 
         var model = new ExpWithMixinModel(mixins);
@@ -114,10 +114,11 @@ public class ExpModelWithMixinTests
         model.FittingResult.C[1].Should().BeInRange(coeffs[1] - 1e-5, coeffs[1] + 1e-5);
         model.FittingResult.C[2].Should().BeInRange(coeffs[2] - 1e-5, coeffs[2] + 1e-5);
         model.FittingResult.C[3].Should().BeInRange(coeffs[3] - 1e-5, coeffs[3] + 1e-5);
+        model.FittingResult.Rmse.Should().BeInRange(-1e-5, 1e-5);
     }
 
     [Fact]
-    public async Task CurveFit_ForQubicModel2_Success()
+    public async Task CurveFit_ForX2_Success()
     {
         var points = new[] {1.0};
         var coeffs = new[] {-2.5 };
@@ -131,7 +132,7 @@ public class ExpModelWithMixinTests
 
         var mixins = new List<IIntervalExtensions>()
         {
-            new EvenFunction((t) => t * t),
+            new UnimodalFunction((t) => t * t),
         };
 
         var model = new ExpWithMixinModel(mixins);
@@ -141,7 +142,7 @@ public class ExpModelWithMixinTests
         var bLb = new DenseVector([0.0000]);
         var bUb = new DenseVector([0.0000]);
         var cLb = new DenseVector([-15.0]);
-        var cUb = new DenseVector([0.0]);
+        var cUb = new DenseVector([14.0]);
 
         var penatlyOptions = new PenatlyOptionsWithMixin()
         {
@@ -155,7 +156,6 @@ public class ExpModelWithMixinTests
             CostB = 3,
             CostC = 4,
         };
-
         
         var tol = new ExpTolWithPenatlyAndMixin(xLb, xUb, yLb, yUb, penatlyOptions, mixins);
         var t = tol.TolValue(aLb, bLb, new DenseVector([-2.51]));
