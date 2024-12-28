@@ -50,6 +50,9 @@
     <Content Update="Components\Pages\ExpWithMixin.razor">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Content>
+    <Content Update="Components\Pages\Polynomials.razor">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
   <ItemGroup>

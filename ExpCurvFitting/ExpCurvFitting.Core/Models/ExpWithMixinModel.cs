@@ -34,25 +34,6 @@ public record ExpWithMixinModel
             cancellationToken)).ToOptimizationWithMixinResult(penatlyOption.ALb.Count, penatlyOption.CLb.Count);
     }
 
-    
-
-    public async Task FitForNonIntervalX(
-        IEnumerable<double> x, 
-        IEnumerable<double> yMid, 
-        IEnumerable<double> yRad, 
-        PenatlyOptionsWithMixin penatlyOptions, 
-        OptimizationOptions optimizationOptions,
-        CancellationToken cancellationToken = default)
-    {
-        var xx = new DenseVector(x.ToArray());
-        var yyMid = new DenseVector(yMid.ToArray());
-        var yyRad = new DenseVector(yRad.ToArray());
-        await Fit(xx, xx, yyMid - yyRad, yyMid + yyRad, 
-            penatlyOptions, 
-            optimizationOptions,
-            cancellationToken);
-    }
-
     public record Result
     {
         public double TolValue { get; init; }
@@ -67,6 +48,14 @@ public record ExpWithMixinModel
             for (int i = 0; i < A.Length; i++)
             {
                 yield return new(A[i], B[i]);
+            }
+        }
+        
+        public IEnumerable<(double, double)> GetC()
+        {
+            for (int i = 0; i < C.Length; i++)
+            {
+                yield return new(i, C[i]);
             }
         }
     }

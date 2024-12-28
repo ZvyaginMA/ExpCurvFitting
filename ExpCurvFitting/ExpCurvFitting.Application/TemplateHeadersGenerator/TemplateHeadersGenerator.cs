@@ -1,6 +1,6 @@
 ﻿namespace ExpCurvFitting.Application.TemplateHeadersGenerator
 {
-    public partial class TemplateHeadersGenerator : ITemplateHeadersGenerator
+    public class TemplateHeadersGenerator : ITemplateHeadersGenerator
     {
         public record Command
         {

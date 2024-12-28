@@ -16,7 +16,7 @@ namespace ExpCurvFitting.Test
             var qubic = new MonotonicFunction((x) => x * x * x);
             Assert.Equal(4.5, qubic.Mid(1, 2), 3);
             Assert.Equal(3.5, qubic.Rad(1, 2), 3);
-            var sqr = new EvenFunction((x) => x * x + 2);
+            var sqr = new UnimodalFunction((x) => x * x + 2);
             Assert.Equal(4.5, sqr.Mid(1, 2), 3);
             Assert.Equal(4, sqr.Mid(-1, 2), 3);
             Assert.Equal(4.5, sqr.Mid(-2, -1), 3);

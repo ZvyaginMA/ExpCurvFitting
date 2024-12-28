@@ -1,4 +1,4 @@
-﻿@page "/expfitting"
+﻿@page "/polynomials"
 @rendermode InteractiveServer
 @implements IDisposable
 @using ExpCurvFitting.Core.Models
@@ -10,18 +10,17 @@
 @inject IExcelService _excelService
 
 
-<PageTitle>Exponents curve fitting</PageTitle>
+<PageTitle>Polynomials curve fitting</PageTitle>
 
-<h1>Восстановление полинома из экспонент</h1>
-<p>Эта программа позволяет восстанавливать зависимости вида полиномов из экспонент:</p>
-<img src="exp_curv_fit.jpg" width="40%" height="40%" />
+<h1>Восстановление полинома по интервальным данным</h1>
+
 <p>
     <tr>
         <td><InputFile OnChange="HandleSelected" MaxAllowedSize="10485760" /></td>
         <td>
             @if (readResult is null)
             {
-                <a href="data_templates\data_template_exp.xlsx" download>Скачать пример входных данных</a>
+                <a href="data_templates\data_template_poly.xlsx" download>Скачать пример входных данных</a>
             }
         </td>
     </tr>
@@ -34,12 +33,8 @@
     {
         <p>Запустите расчет</p>
         <tr>
-            <td>Количество экспонент</td>
-            <td><input type="number" @bind="numberOfExponents" /></td>
-        </tr>
-        <tr>
-            <td>Использовать слагаемое x^-2.5</td>
-            <td><input type="checkbox" @bind="UsePower" /></td>
+            <td>Степень полинома</td>
+            <td><input type="number" @bind="degreeOfPolynom" /></td>
         </tr>
     }
     else if (IsCalc == Status.InProgress)
@@ -55,35 +50,24 @@
         <table class="table">
             <thead>
                 <tr>
-                    <th>a</th>
-                    <th>b</th>
+                    <th>Степень</th>
+                    <th>Коеффициент</th>
                 </tr>
             </thead>
             <tbody>
-                @foreach (var item in modelResult.GetPoints())
+                @foreach (var item in modelResult.GetC())
                 {
                     <tr>
                         <td>@($"{item.Item1:G4}")</td>
                         <td>@($"{item.Item2:G4}")</td>
                     </tr>
                 }
-                @if (UsePower)
-                {
-                    <tr>
-                        <td>c</td>
-                        <td>@($"{modelResult.C[0]:G4}")</td>
-                    </tr>
-                }
             </tbody>
         </table>
 
         <tr>
-            <td>Количество экспонент</td>
-            <td><input type="number" @bind="numberOfExponents" /></td>
-        </tr>
-        <tr>
-            <td>Использовать слагаемое x^-2.5</td>
-            <td><input type="checkbox" @bind="UsePower" /></td>
+            <td>Степень полинома</td>
+            <td><input type="number" @bind="degreeOfPolynom" /></td>
         </tr>
     }
     <table>
@@ -128,29 +112,16 @@
     <table class="table">
         <thead>
             <tr>
-                <th>a_lb</th>
-                <th>a_ub</th>
-                <th>b_lb</th>
-                <th>b_ub</th>
+                <th>c_lb</th>
+                <th>c_ub</th>
             </tr>
         </thead>
         <tbody>
-            @foreach (var item in penatlyOptions.Items)
+            @foreach (var item in penatlyOptions.Items2)
             {
                 <tr>
-                    <td><input type="text" @bind="item.ALb" /></td>
-                    <td><input type="text" @bind="item.AUb" /></td>
-                    <td><input type="text" @bind="item.BLb" /></td>
-                    <td><input type="text" @bind="item.BUb" /></td>
-                </tr>
-            }
-            @if (UsePower)
-            {
-                <tr>
-                    <th>c_lb</th>
-                    <td><input type="text" @bind="penatlyOptions.Items2[0].CLb" /></td>
-                    <th>c_ub </th>
-                    <td><input type="text" @bind="penatlyOptions.Items2[0].CUb" /></td>
+                    <td><input type="text" @bind="item.CLb" /></td>
+                    <td><input type="text" @bind="item.CUb" /></td>
                 </tr>
             }
         </tbody>
@@ -168,15 +139,15 @@ else if (readResult == null)
 }
 else
 {
-    <p>@(readResult is not null ? $"Загружено {readResult.InputData.YMid.Count} точек" : "")</p>
+    <p>@(readResult is not null ? $"Загружено {readResult.InputData.YRad.Count} точек" : "")</p>
 
     <table class="table">
         <thead>
-            <tr>
-                <th>X</th>
-                <th>YMid</th>
-                <th>YRad</th>
-            </tr>
+        <tr>
+            @foreach(var item in headers){
+                <th>@item</th>
+            }
+        </tr>
         </thead>
         <tbody>
             @foreach (var items in readResult!.GetPoints())
@@ -201,27 +172,27 @@ else
         Done
     };
 
-    private CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
-    private int numberOfExponents;
+    private CancellationTokenSource cancellationTokenSource = new ();
+    private int degreeOfPolynom;
     private Result readResult = null!;
     private ExpWithMixinModel.Result modelResult = null!;
     private OptimizationOptions optimizationOptions = new();
     private bool IsLoading;
     private Status IsCalc = Status.NoStarted;
-    private PenatlyOptionsDto? penatlyOptions = null;
-
+    private PenatlyOptionsDto? penatlyOptions  = null;
+    private TemplateHeadersGenerator _headersGenerator = new ();
+    private string[] headers;
+    
     private bool IsSettingPenatlyOptions;
     private bool IsSettingOptimizationOptions;
     private bool UsePower;
-
     private readonly InputDataConfiguration _inputDataConfiguration = new InputDataConfiguration()
     {
         CountInputVariable = 1,
         IntervalPresentation = IntervalPresentation.MidRad,
         IsIntervalOutput = true,
-        IsIntervalInput = false
+        IsIntervalInput = true
     };
-    
     private async Task HandleSelected(InputFileChangeEventArgs e)
     {
         try
@@ -231,7 +202,12 @@ else
             IsLoading = true;
             await e.File.OpenReadStream().CopyToAsync(ms);
             readResult = _excelService.LoadDateFromFile(ms, _inputDataConfiguration);
-            Log.Logger.Information("Данные прочитаны. Id данных {id} Количество точек {count}", readResult.DataId ,readResult.InputData.YMid.Count);
+            Log.Logger.Information("Данные прочитаны. Id данных {id} Количество точек {count}", readResult.DataId ,readResult.InputData.YRad.Count);
+            headers = _headersGenerator.Handle(new()
+            {
+                dataConfiguration = _inputDataConfiguration
+            }).Headers.ToArray();
+
         }
         catch (Exception ex)
         {
@@ -242,7 +218,7 @@ else
 
     private void SetPenatlyOptions()
     {
-        penatlyOptions = new PenatlyOptionsDto(numberOfExponents);
+        penatlyOptions = new PenatlyOptionsDto(0, degreeOfPolynom + 1);
         IsSettingPenatlyOptions = true;
     }
 
@@ -269,30 +245,27 @@ else
     {
         try
         {
-            var mixins = new List<IIntervalExtensions>()
+            var mixins = new List<IIntervalExtensions>();
+            for (int i = 0; i <= degreeOfPolynom; i++)
             {
-                new MonotonicFunction(UsePower ? (t) => Math.Pow(t, -2.5) : (t) => 0),
-            };
+                var ii = i;
+                if (i % 2 == 1)
+                {
+                    mixins.Add(new MonotonicFunction((t) => Math.Pow(t, ii)));
+                }
+                else
+                {
+                    mixins.Add(new UnimodalFunction((t) => Math.Pow(t, ii)));
+                }
+            }
+            if (penatlyOptions is null || degreeOfPolynom + 1 != penatlyOptions.CountOfDegree)
+            {
+                penatlyOptions = new PenatlyOptionsDto(0, degreeOfPolynom + 1);
+            }
             var expModel = new ExpWithMixinModel(mixins);
-            if (numberOfExponents <= 0)
-            {
-                return;
-            }
-            if (penatlyOptions is null || numberOfExponents != penatlyOptions.NumberOfExp)
-            {
-                penatlyOptions = new PenatlyOptionsDto(numberOfExponents);
-            }
+
             IsCalc = Status.InProgress;
-            if (!UsePower)
-            {
-                penatlyOptions.Items2[0].CLb = 0;
-                penatlyOptions.Items2[0].CUb = 0;
-            }
-            else
-            {
-                penatlyOptions.Items2[0].CLb = 0;
-                penatlyOptions.Items2[0].CUb = 100;
-            }
+            
             Log.Logger.Information("Расчет запущен для {id}", readResult.DataId);
 
             await expModel.Fit(
@@ -300,7 +273,7 @@ else
                 readResult.InputData.XUb.Single(),
                 readResult.InputData.YLb,
                 readResult.InputData.YUb,
-                penatlyOptions.GetPenatlyOptionsForMixin(),
+                penatlyOptions.GetPenatlyOptionsForMixin(degreeOfPolynom + 1),
                 optimizationOptions,
                 cancellationTokenSource.Token);
             modelResult = expModel.GetResult();

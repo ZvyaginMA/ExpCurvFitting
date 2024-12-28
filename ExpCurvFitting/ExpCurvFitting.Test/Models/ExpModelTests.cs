@@ -2,7 +2,7 @@
 using FluentAssertions;
 using MathNet.Numerics.LinearAlgebra.Double;
 
-namespace ExpCurvFitting.Test
+namespace ExpCurvFitting.Test.Models
 {
     public class ExpModelTests
     {
