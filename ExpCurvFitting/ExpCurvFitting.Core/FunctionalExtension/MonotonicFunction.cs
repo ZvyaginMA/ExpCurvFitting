@@ -1,8 +1,6 @@
-﻿using System;
-
-namespace ExpCurvFitting.Core.FunctionalExtensions
+﻿namespace ExpCurvFitting.Core.FunctionalExtension
 {
-    public class MonotonicFunction : IIntervalExtensions
+    public class MonotonicFunction : IIntervalExtension
     {
         private readonly Func<double, double> _function;
 

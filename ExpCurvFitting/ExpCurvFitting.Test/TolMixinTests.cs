@@ -1,4 +1,4 @@
-﻿using ExpCurvFitting.Core.FunctionalExtensions;
+﻿using ExpCurvFitting.Core.FunctionalExtension;
 using ExpCurvFitting.Core.Models;
 using ExpCurvFitting.Core.Optimization;
 using ExpCurvFitting.Core.RecognizingFunctions;
@@ -37,7 +37,7 @@ public class TolMixinTests
             CostC = 20,
         };
 
-        var mixins = new List<IIntervalExtensions>()
+        var mixins = new List<IIntervalExtension>()
         {
             new MonotonicFunction((t) => Math.Pow(t, -2.5)),
         };
@@ -92,7 +92,7 @@ public class TolMixinTests
             CostC = 20,
         };
 
-        var mixins = new List<IIntervalExtensions>()
+        var mixins = new List<IIntervalExtension>()
         {
             new MonotonicFunction((t) => Math.Pow(t, -2.5)),
         };

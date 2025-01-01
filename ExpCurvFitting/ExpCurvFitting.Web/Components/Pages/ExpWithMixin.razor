@@ -3,11 +3,13 @@
 @implements IDisposable
 @using ExpCurvFitting.Core.Models
 @using ExpCurvFitting.Web.Models
-@using ExpCurvFitting.Core.FunctionalExtensions
 @using Serilog;
 @using ExpCurvFitting.Application.Excel;
 @using ExpCurvFitting.Application.TemplateHeadersGenerator
+@using ExpCurvFitting.Core.FunctionalExtension
+@using ExpCurvFitting.Web.Infrastructure
 @inject IExcelService _excelService
+@inject AppMetric _appMetric
 
 
 <PageTitle>Exponents curve fitting</PageTitle>
@@ -209,6 +211,7 @@ else
     private bool IsLoading;
     private Status IsCalc = Status.NoStarted;
     private PenatlyOptionsDto? penatlyOptions = null;
+    private const string sourse = "exp";
 
     private bool IsSettingPenatlyOptions;
     private bool IsSettingOptimizationOptions;
@@ -226,15 +229,18 @@ else
     {
         try
         {
+            _appMetric.IncLoadStart(sourse);
             MemoryStream ms = new MemoryStream();
             Log.Logger.Information("Данные загружаются");
             IsLoading = true;
             await e.File.OpenReadStream().CopyToAsync(ms);
             readResult = _excelService.LoadDateFromFile(ms, _inputDataConfiguration);
+            _appMetric.IncLoadDone(sourse);
             Log.Logger.Information("Данные прочитаны. Id данных {id} Количество точек {count}", readResult.DataId ,readResult.InputData.YMid.Count);
         }
         catch (Exception ex)
         {
+            _appMetric.IncLoadEx(sourse + "_" + ex.GetType().Name);
             Log.Logger.Error("Ошибка при загрузке {ex}", ex);
             IsLoading = false;
         }
@@ -269,7 +275,7 @@ else
     {
         try
         {
-            var mixins = new List<IIntervalExtensions>()
+            var mixins = new List<IIntervalExtension>()
             {
                 new MonotonicFunction(UsePower ? (t) => Math.Pow(t, -2.5) : (t) => 0),
             };
@@ -295,6 +301,8 @@ else
             }
             Log.Logger.Information("Расчет запущен для {id}", readResult.DataId);
 
+            _appMetric.IncCalcStart(sourse);
+            
             await expModel.Fit(
                 readResult.InputData.XLb.Single(),
                 readResult.InputData.XUb.Single(),
@@ -305,10 +313,14 @@ else
                 cancellationTokenSource.Token);
             modelResult = expModel.GetResult();
             IsCalc = Status.Done;
+            _appMetric.IncCalcDone(sourse);
+            
             Log.Logger.Information("Расчет завершен для {id}. Rmse {rmse}. Время на расчет {time}", readResult.DataId, modelResult.RmseForCenter, modelResult.TimeCalculation);
         }
         catch (Exception ex)
         {
+            _appMetric.IncCalcEx(sourse + "_" + ex.GetType().Name);
+
             Log.Logger.Error("Ошибка {ex} в расчетах для {id}", ex, readResult.DataId);
             IsCalc = Status.NoStarted;
         }

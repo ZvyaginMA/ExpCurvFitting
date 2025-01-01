@@ -1,6 +1,6 @@
-﻿namespace ExpCurvFitting.Core.FunctionalExtensions
+﻿namespace ExpCurvFitting.Core.FunctionalExtension
 {
-    public interface IIntervalExtensions
+    public interface IIntervalExtension
     {
         double Val(double t);
         double Mid(double lowerBound, double upperBound);

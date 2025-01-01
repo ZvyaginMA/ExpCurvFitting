@@ -1,4 +1,4 @@
-﻿using ExpCurvFitting.Core.FunctionalExtensions;
+﻿using ExpCurvFitting.Core.FunctionalExtension;
 using ExpCurvFitting.Core.Models;
 using MathNet.Numerics.LinearAlgebra;
 using MathNet.Numerics.LinearAlgebra.Double;
@@ -7,7 +7,7 @@ using MathNet.Numerics.Optimization;
 namespace ExpCurvFitting.Core.RecognizingFunctions;
 public record ExpTolWithPenatlyAndMixin : ExpTol
 {
-    public IList<IIntervalExtensions> MixinFunction { get; init; }
+    public IList<IIntervalExtension> MixinFunction { get; init; }
     public PenatlyOptionsWithMixin PenatlyOptions { get; init; }
     public ExpTolWithPenatlyAndMixin(
         Vector<double> xLowerBound, 
@@ -15,7 +15,7 @@ public record ExpTolWithPenatlyAndMixin : ExpTol
         Vector<double> yLowerBound, 
         Vector<double> yUpperBound, 
         PenatlyOptionsWithMixin penatlyOptions, 
-        IList<IIntervalExtensions> mixinFunctions) : base(xLowerBound, xUpperBound, yLowerBound, yUpperBound)
+        IList<IIntervalExtension> mixinFunctions) : base(xLowerBound, xUpperBound, yLowerBound, yUpperBound)
     {
         PenatlyOptions = penatlyOptions;
         MixinFunction = mixinFunctions;

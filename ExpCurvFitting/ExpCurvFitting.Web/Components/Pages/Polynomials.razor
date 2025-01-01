@@ -3,11 +3,13 @@
 @implements IDisposable
 @using ExpCurvFitting.Core.Models
 @using ExpCurvFitting.Web.Models
-@using ExpCurvFitting.Core.FunctionalExtensions
 @using Serilog;
 @using ExpCurvFitting.Application.Excel;
 @using ExpCurvFitting.Application.TemplateHeadersGenerator
+@using ExpCurvFitting.Core.FunctionalExtension
+@using ExpCurvFitting.Web.Infrastructure
 @inject IExcelService _excelService
+@inject AppMetric _appMetric;
 
 
 <PageTitle>Polynomials curve fitting</PageTitle>
@@ -182,6 +184,7 @@ else
     private PenatlyOptionsDto? penatlyOptions  = null;
     private TemplateHeadersGenerator _headersGenerator = new ();
     private string[] headers;
+    private const string sourse = "poly"; 
     
     private bool IsSettingPenatlyOptions;
     private bool IsSettingOptimizationOptions;
@@ -200,8 +203,10 @@ else
             MemoryStream ms = new MemoryStream();
             Log.Logger.Information("Данные загружаются");
             IsLoading = true;
+            _appMetric.IncLoadStart(sourse);
             await e.File.OpenReadStream().CopyToAsync(ms);
             readResult = _excelService.LoadDateFromFile(ms, _inputDataConfiguration);
+            _appMetric.IncLoadDone(sourse);
             Log.Logger.Information("Данные прочитаны. Id данных {id} Количество точек {count}", readResult.DataId ,readResult.InputData.YRad.Count);
             headers = _headersGenerator.Handle(new()
             {
@@ -211,6 +216,7 @@ else
         }
         catch (Exception ex)
         {
+            _appMetric.IncLoadEx(sourse + "_" + ex.GetType().Name);
             Log.Logger.Error("Ошибка при загрузке {ex}", ex);
             IsLoading = false;
         }
@@ -245,7 +251,7 @@ else
     {
         try
         {
-            var mixins = new List<IIntervalExtensions>();
+            var mixins = new List<IIntervalExtension>();
             for (int i = 0; i <= degreeOfPolynom; i++)
             {
                 var ii = i;
@@ -268,6 +274,8 @@ else
             
             Log.Logger.Information("Расчет запущен для {id}", readResult.DataId);
 
+            _appMetric.IncCalcStart(sourse);
+            
             await expModel.Fit(
                 readResult.InputData.XLb.Single(),
                 readResult.InputData.XUb.Single(),
@@ -278,10 +286,13 @@ else
                 cancellationTokenSource.Token);
             modelResult = expModel.GetResult();
             IsCalc = Status.Done;
+
+            _appMetric.IncCalcDone(sourse);
             Log.Logger.Information("Расчет завершен для {id}. Rmse {rmse}. Время на расчет {time}", readResult.DataId, modelResult.RmseForCenter, modelResult.TimeCalculation);
         }
         catch (Exception ex)
         {
+            _appMetric.IncCalcEx(sourse + "_" + ex.GetType().Name);
             Log.Logger.Error("Ошибка {ex} в расчетах для {id}", ex, readResult.DataId);
             IsCalc = Status.NoStarted;
         }

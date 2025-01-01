@@ -1,6 +1,9 @@
-﻿namespace ExpCurvFitting.Core.FunctionalExtensions
+﻿namespace ExpCurvFitting.Core.FunctionalExtension
 {
-    public record UnimodalFunction : IIntervalExtensions
+    /// <summary>
+    /// 
+    /// </summary>
+    public record UnimodalFunction : IIntervalExtension
     {
         private readonly Func<double, double> _function;
         private double OptimumPoint { get; init; }

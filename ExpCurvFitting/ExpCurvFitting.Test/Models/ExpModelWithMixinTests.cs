@@ -1,5 +1,5 @@
 ﻿using System.Diagnostics;
-using ExpCurvFitting.Core.FunctionalExtensions;
+using ExpCurvFitting.Core.FunctionalExtension;
 using ExpCurvFitting.Core.Models;
 using ExpCurvFitting.Core.RecognizingFunctions;
 using FluentAssertions;
@@ -16,7 +16,7 @@ public class ExpModelWithMixinTests
         var yLb = new DenseVector([2.564, 1.0253, 0.2068, 0.1517, 0.0753, -0.017, -0.0343, -0.0501, -0.0623]);
         var yUb = new DenseVector([2.704, 1.1653, 0.3468, 0.2917, 0.2153, 0.123, 0.1057, 0.0899, 0.0777]);
 
-        var mixins = new List<IIntervalExtensions>()
+        var mixins = new List<IIntervalExtension>()
         {
             new MonotonicFunction((t) => Math.Pow(t, -2.5)),
         };
@@ -69,7 +69,7 @@ public class ExpModelWithMixinTests
         var yLb = new DenseVector(y) - 0.1;
         var yUb = new DenseVector(y) + 0.1;
 
-        var mixins = new List<IIntervalExtensions>()
+        var mixins = new List<IIntervalExtension>()
         {
             new MonotonicFunction((t) => Math.Pow(t, 0)),
             new MonotonicFunction((t) => Math.Pow(t, 1)),
@@ -130,7 +130,7 @@ public class ExpModelWithMixinTests
         var yLb = new DenseVector(y);
         var yUb = new DenseVector(y);
 
-        var mixins = new List<IIntervalExtensions>()
+        var mixins = new List<IIntervalExtension>()
         {
             new UnimodalFunction((t) => t * t),
         };

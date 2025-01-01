@@ -1,20 +1,20 @@
-﻿using ExpCurvFitting.Core.RecognizingFunctions;
+﻿using ExpCurvFitting.Core.FunctionalExtension;
+using ExpCurvFitting.Core.RecognizingFunctions;
 using ExpCurvFitting.Core.Optimization;
 using MathNet.Numerics.LinearAlgebra;
-using MathNet.Numerics.LinearAlgebra.Double;
-using ExpCurvFitting.Core.FunctionalExtensions;
 
 namespace ExpCurvFitting.Core.Models;
 public record ExpWithMixinModel
 {
     public OptimizationWithMixinResult FittingResult { get; private set; }
-    public readonly IList<IIntervalExtensions> _mixinFunctions;
+    public readonly IList<IIntervalExtension> _mixinFunctions;
     
     public ExpWithMixinModel(
-        IList<IIntervalExtensions> mixinFunctions)
+        IList<IIntervalExtension> mixinFunctions)
     {
         _mixinFunctions = mixinFunctions;
     }
+    
     public async Task Fit(
         Vector<double> xLb, 
         Vector<double> xUb, 

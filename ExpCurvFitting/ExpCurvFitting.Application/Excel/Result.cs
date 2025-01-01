@@ -7,7 +7,6 @@ namespace ExpCurvFitting.Application.Excel
     {
         public bool IsSuccess { get; init; }
         public InputData.InputDataMidRad InputData { get; init; }
-
         public int DataId = new Random().Next();
         
         public IEnumerable<double[]> GetPoints()

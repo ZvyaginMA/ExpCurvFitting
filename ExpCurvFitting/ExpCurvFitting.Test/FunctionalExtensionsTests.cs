@@ -1,4 +1,4 @@
-﻿using ExpCurvFitting.Core.FunctionalExtensions;
+﻿using ExpCurvFitting.Core.FunctionalExtension;
 using ExpCurvFitting.Core.Models;
 using FluentAssertions;
 using MathNet.Numerics.LinearAlgebra.Double;
