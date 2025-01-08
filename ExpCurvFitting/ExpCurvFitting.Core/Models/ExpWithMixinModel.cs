@@ -9,8 +9,7 @@ public record ExpWithMixinModel
     public OptimizationWithMixinResult FittingResult { get; private set; }
     public readonly IList<IIntervalExtension> _mixinFunctions;
     
-    public ExpWithMixinModel(
-        IList<IIntervalExtension> mixinFunctions)
+    public ExpWithMixinModel(IList<IIntervalExtension> mixinFunctions)
     {
         _mixinFunctions = mixinFunctions;
     }

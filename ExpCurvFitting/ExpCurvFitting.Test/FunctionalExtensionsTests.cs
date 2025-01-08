@@ -24,13 +24,5 @@ namespace ExpCurvFitting.Test
             Assert.Equal(2, sqr.Rad(-1, 2), 3);
             Assert.Equal(1.5, sqr.Rad(-2, -1), 3);
         }
-
-        [Fact]
-        public async Task test2()
-        {
-            
-
-
-        }
     }
 }
