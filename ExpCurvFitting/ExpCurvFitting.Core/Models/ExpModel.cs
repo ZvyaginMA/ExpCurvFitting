@@ -2,7 +2,6 @@
 using ExpCurvFitting.Core.Optimization;
 using MathNet.Numerics.LinearAlgebra;
 using MathNet.Numerics.LinearAlgebra.Double;
-using System.Diagnostics;
 namespace ExpCurvFitting.Core.Models;
 public record ExpModel
 {

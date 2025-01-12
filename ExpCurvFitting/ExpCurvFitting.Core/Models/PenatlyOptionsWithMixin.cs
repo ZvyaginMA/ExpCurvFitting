@@ -13,4 +13,6 @@ public class PenatlyOptionsWithMixin
     public double CostA { get; init; } = 100;
     public double CostB { get; init; } = 100;
     public double CostC { get; init; } = 100;
+    
+    public int GetCountVariable => ALb.Count + BLb.Count + CLb.Count;
 }

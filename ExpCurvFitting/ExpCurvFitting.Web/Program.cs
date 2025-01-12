@@ -4,6 +4,8 @@ using Serilog.Events;
 using Serilog.Formatting.Json;
 using Serilog;
 using ExpCurvFitting.Application.Excel;
+using ExpCurvFitting.Web.Infrastructure;
+using Prometheus;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,6 +23,7 @@ builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 builder.Services.AddTransient<IExcelService, ExcelService>();
 builder.Services.AddTransient<ExpModel>();
+builder.Services.AddSingleton<AppMetric>();
 
 var app = builder.Build();
 
@@ -30,10 +33,12 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
+app.MapMetrics();
 app.UseHttpsRedirection();
 
 app.UseStaticFiles();
 app.UseAntiforgery();
+
 
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();

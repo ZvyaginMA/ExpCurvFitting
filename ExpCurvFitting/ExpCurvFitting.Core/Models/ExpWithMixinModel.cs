@@ -1,19 +1,19 @@
-﻿using ExpCurvFitting.Core.RecognizingFunctions;
+﻿using ExpCurvFitting.Core.FunctionalExtension;
+using ExpCurvFitting.Core.RecognizingFunctions;
 using ExpCurvFitting.Core.Optimization;
 using MathNet.Numerics.LinearAlgebra;
-using MathNet.Numerics.LinearAlgebra.Double;
 
 namespace ExpCurvFitting.Core.Models;
 public record ExpWithMixinModel
 {
     public OptimizationWithMixinResult FittingResult { get; private set; }
-    public readonly IList<Func<double, double>> _mixinFunctions;
+    public readonly IList<IIntervalExtension> _mixinFunctions;
     
-    public ExpWithMixinModel(
-        IList<Func<double, double>> mixinFunctions)
+    public ExpWithMixinModel(IList<IIntervalExtension> mixinFunctions)
     {
         _mixinFunctions = mixinFunctions;
     }
+    
     public async Task Fit(
         Vector<double> xLb, 
         Vector<double> xUb, 
@@ -29,27 +29,10 @@ public record ExpWithMixinModel
                 optimizationOptions.GradientTolerance, 
                 optimizationOptions.MaximumIterations), 
             optimizationOptions.CountMultistarts, 
-            penatlyOption.ALb.Count*2 + penatlyOption.CLb.Count, 
+            penatlyOption.GetCountVariable, 
             cancellationToken)).ToOptimizationWithMixinResult(penatlyOption.ALb.Count, penatlyOption.CLb.Count);
-    }
-
-    
-
-    public async Task FitForNonIntervalX(
-        IEnumerable<double> x, 
-        IEnumerable<double> yMid, 
-        IEnumerable<double> yRad, 
-        PenatlyOptionsWithMixin penatlyOptions, 
-        OptimizationOptions optimizationOptions,
-        CancellationToken cancellationToken = default)
-    {
-        var xx = new DenseVector(x.ToArray());
-        var yyMid = new DenseVector(yMid.ToArray());
-        var yyRad = new DenseVector(yRad.ToArray());
-        await Fit(xx, xx, yyMid - yyRad, yyMid + yyRad, 
-            penatlyOptions, 
-            optimizationOptions,
-            cancellationToken);
+        
+        FittingResult.ValueOnGenerators = tol.CalcGeneratrix(FittingResult.A, FittingResult.B, FittingResult.C).ToArray();
     }
 
     public record Result
@@ -61,11 +44,21 @@ public record ExpWithMixinModel
         public double[] B { get; init; }
         public double[] C { get; init; }
         public double MinYRad { get; init; }
+        public double[] ValueOnGenerators { get; init; }
+        
         public IEnumerable<(double, double)> GetPoints()
         {
             for (int i = 0; i < A.Length; i++)
             {
                 yield return new(A[i], B[i]);
+            }
+        }
+        
+        public IEnumerable<(double, double)> GetC()
+        {
+            for (int i = 0; i < C.Length; i++)
+            {
+                yield return new(i, C[i]);
             }
         }
     }
@@ -80,7 +73,8 @@ public record ExpWithMixinModel
             C = FittingResult.C.AsArray(),
             RmseForCenter = FittingResult.Rmse,
             TimeCalculation = FittingResult.TimeCalculation.TotalSeconds,
-            MinYRad = FittingResult.MinYRad
+            MinYRad = FittingResult.MinYRad,
+            ValueOnGenerators = FittingResult.ValueOnGenerators
         };
     }
 }
