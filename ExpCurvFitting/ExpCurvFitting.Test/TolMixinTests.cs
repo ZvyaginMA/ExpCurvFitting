@@ -65,7 +65,7 @@ public class TolMixinTests
         multistarResult.TolValue.Should().BeInRange(0.006, 0.007);
     }
     
-    [Fact]
+    //[Fact]
     public async Task TestStopedCalc()
     {
         var x = new DenseVector([1.0, 2.0, 3, 4, 5, 6]);

@@ -15,7 +15,6 @@
 <PageTitle>Exponents curve fitting</PageTitle>
 
 <h1>Восстановление полинома из экспонент</h1>
-<p>Эта программа позволяет восстанавливать зависимости вида полиномов из экспонент:</p>
 <img src="exp_curv_fit.jpg" width="40%" height="40%" />
 <p>
     <tr>
@@ -51,7 +50,7 @@
     else
     {
         <tr>Tol: @($"{modelResult.TolValue:G6}")</tr>
-        <tr>Max Tol: @($"{modelResult.MinYRad:G4}")</tr>
+        <tr>Min Y Rad: @($"{modelResult.MinYRad:G4}")</tr>
         <tr>RMSE: @($"{modelResult.RmseForCenter:G4}")</tr>
         <tr>Время расчета: @($"{modelResult.TimeCalculation:F3} с.")</tr>
         <table class="table">
@@ -178,10 +177,15 @@ else
                 <th>X</th>
                 <th>YMid</th>
                 <th>YRad</th>
+                @if (IsCalc == Status.Done)
+                {
+                    <th>Значения образующих</th>
+                }
             </tr>
         </thead>
         <tbody>
-            @foreach (var items in readResult!.GetPoints())
+        
+            @foreach (var items in readResult!.GetPoints(IsCalc == Status.Done ? modelResult.ValueOnGenerators : null))
             {
                 <tr>
                     @foreach (var item in items)

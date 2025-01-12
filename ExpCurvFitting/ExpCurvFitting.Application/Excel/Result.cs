@@ -9,8 +9,13 @@ namespace ExpCurvFitting.Application.Excel
         public InputData.InputDataMidRad InputData { get; init; }
         public int DataId = new Random().Next();
         
-        public IEnumerable<double[]> GetPoints()
+        public IEnumerable<double[]> GetPoints(double[]? generators = null)
         {
+            if (generators is not null && generators.Length != InputData.XMid[0].Count)
+            {
+                throw new ArgumentException("generators must be of the same length");
+            }
+            
             if (InputData.IsIntervalInput)
             {
                 for (int i = 0; i < InputData.XMid[0].Count; i++)
@@ -24,6 +29,11 @@ namespace ExpCurvFitting.Application.Excel
                     
                     result.Add(InputData.YMid[i]);
                     result.Add(InputData.YRad[i]);
+
+                    if (generators is not null)
+                    {
+                        result.Add(generators[i]);
+                    }
                     
                     yield return result.ToArray();
                 }
@@ -40,6 +50,11 @@ namespace ExpCurvFitting.Application.Excel
                     
                     result.Add(InputData.YMid[i]);
                     result.Add(InputData.YRad[i]);
+                    
+                    if (generators is not null)
+                    {
+                        result.Add(generators[i]);
+                    }
                     
                     yield return result.ToArray();
                 }

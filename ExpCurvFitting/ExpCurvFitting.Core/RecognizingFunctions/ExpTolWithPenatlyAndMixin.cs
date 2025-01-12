@@ -50,7 +50,7 @@ public record ExpTolWithPenatlyAndMixin : ExpTol
         return CalcRmse(a, b, c);
     }
 
-    private Vector<double> CalcGeneratrix(Vector<double> a, Vector<double> b,  Vector<double> c)
+    public Vector<double> CalcGeneratrix(Vector<double> a, Vector<double> b,  Vector<double> c)
     {
         var result = Vector<double>.Build.Dense(YRad.Count);
         for (int i = 0; i < YRad.Count; i++)

@@ -29,8 +29,10 @@ public record ExpWithMixinModel
                 optimizationOptions.GradientTolerance, 
                 optimizationOptions.MaximumIterations), 
             optimizationOptions.CountMultistarts, 
-            penatlyOption.ALb.Count*2 + penatlyOption.CLb.Count, 
+            penatlyOption.GetCountVariable, 
             cancellationToken)).ToOptimizationWithMixinResult(penatlyOption.ALb.Count, penatlyOption.CLb.Count);
+        
+        FittingResult.ValueOnGenerators = tol.CalcGeneratrix(FittingResult.A, FittingResult.B, FittingResult.C).ToArray();
     }
 
     public record Result
@@ -42,6 +44,8 @@ public record ExpWithMixinModel
         public double[] B { get; init; }
         public double[] C { get; init; }
         public double MinYRad { get; init; }
+        public double[] ValueOnGenerators { get; init; }
+        
         public IEnumerable<(double, double)> GetPoints()
         {
             for (int i = 0; i < A.Length; i++)
@@ -69,7 +73,8 @@ public record ExpWithMixinModel
             C = FittingResult.C.AsArray(),
             RmseForCenter = FittingResult.Rmse,
             TimeCalculation = FittingResult.TimeCalculation.TotalSeconds,
-            MinYRad = FittingResult.MinYRad
+            MinYRad = FittingResult.MinYRad,
+            ValueOnGenerators = FittingResult.ValueOnGenerators
         };
     }
 }

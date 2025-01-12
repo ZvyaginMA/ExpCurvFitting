@@ -12,6 +12,7 @@ public record BaseOptimizationResult
     public TimeSpan TimeCalculation { get; set; }
     public double MinYRad { get; init; }
     public ExitCondition ReasonForExit { get; init; }
+    public double[] ValueOnGenerators { get;  set; }
 
     public OptimizationWithMixinResult ToOptimizationWithMixinResult(int countExp, int countMixins)
     {
