@@ -20,71 +20,60 @@
 
         private void AddOutputHeaders(IList<string> headers, Command command)
         {
-            if (command.dataConfiguration.IsIntervalOutput)
+            if (!command.dataConfiguration.IsIntervalOutput)
             {
-                if (command.dataConfiguration.IntervalPresentation == IntervalPresentation.Bounds)
-                {
-                    var lowBoundHeader = "y_lb";
-                    var upperBoundHeader = "y_ub";
-                    headers.Add(lowBoundHeader);
-                    headers.Add(upperBoundHeader);
-                }
-                else if (command.dataConfiguration.IntervalPresentation == IntervalPresentation.MidRad)
-                {
-                    var lowBoundHeader = "y_mid";
-                    var upperBoundHeader = "y_rad";
-                    headers.Add(lowBoundHeader);
-                    headers.Add(upperBoundHeader);
-                }
-                else
-                {
-                    throw new NotImplementedException();
-                }
+                headers.Add("y");
+                return;
+            }
+
+            if (command.dataConfiguration.IntervalPresentation == IntervalPresentation.Bounds)
+            {
+                headers.Add("y_lb");
+                headers.Add("y_ub");
+            }
+            else if (command.dataConfiguration.IntervalPresentation == IntervalPresentation.MidRad)
+            {
+                headers.Add("y_mid");
+                headers.Add("y_rad");
             }
             else
             {
-                var yHeader = "y";
-                headers.Add(yHeader);
+                throw new NotImplementedException();
             }
         }
 
         private void AddInputHeaders(IList<string> headers, Command command)
         {
-            if (command.dataConfiguration.IsIntervalInput)
-            {
-                if (command.dataConfiguration.IntervalPresentation == IntervalPresentation.Bounds)
-                {
-                    for (int i = 0; i < command.dataConfiguration.CountInputVariable; i++)
-                    {
-                        var firstHeader = $"x_{i + 1}_lb";
-                        var secondHeader = $"x_{i + 1}_ub";
-                        headers.Add(firstHeader);
-                        headers.Add(secondHeader);
-                    }
-                }
-                else if (command.dataConfiguration.IntervalPresentation == IntervalPresentation.MidRad)
-                {
-                    for (int i = 0; i < command.dataConfiguration.CountInputVariable; i++)
-                    {
-                        var firstHeader = $"x_{i + 1}_mid";
-                        var secondHeader = $"x_{i + 1}_rad";
-                        headers.Add(firstHeader);
-                        headers.Add(secondHeader);
-                    }
-                }
-                else
-                {
-                    throw new NotImplementedException();
-                }
-            }
-            else
+            if (!command.dataConfiguration.IsIntervalInput)
             {
                 for (int i = 0; i < command.dataConfiguration.CountInputVariable; i++)
                 {
-                    var xHeader = "x_" + (i + 1);
-                    headers.Add(xHeader);
+                    headers.Add($"x_{i + 1}");
                 }
+                return;
             }
+            
+            if (command.dataConfiguration.IntervalPresentation == IntervalPresentation.Bounds)
+            {
+                for (int i = 0; i < command.dataConfiguration.CountInputVariable; i++)
+                {
+                    headers.Add($"x_{i + 1}_lb");
+                    headers.Add($"x_{i + 1}_ub");
+                }
+                return;
+            }
+            
+            if (command.dataConfiguration.IntervalPresentation == IntervalPresentation.MidRad)
+            {
+                for (int i = 0; i < command.dataConfiguration.CountInputVariable; i++)
+                {
+                    headers.Add($"x_{i + 1}_mid");
+                    headers.Add($"x_{i + 1}_rad");
+                }
+                return;
+            }
+            
+            throw new NotImplementedException();
         }
         public record Result
         {
