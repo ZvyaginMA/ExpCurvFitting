@@ -10,4 +10,4 @@ email: m.zvyagin@g.nsu.ru
 
 tg: @mmax_zvy
 
-Текущая ссылка: http://45.95.203.198:8080
+Текущая ссылка: http://intervalcurvfit.ru
