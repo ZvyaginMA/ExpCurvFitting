@@ -4,28 +4,16 @@ using MathNet.Numerics.LinearAlgebra.Double;
 
 namespace ExpCurvFitting.Application.InputData
 {
-    public class InputData
-    {
-        private IReadOnlyList<Vector<double>> Data { get; set; }
-        private InputDataConfiguration Configuration { get; set; }
-
-        public InputData()
-        {
-
-        }
-
-        public Vector<double> XLb;
-            
-        public Vector<double> XUb => Data[1];
-        public Vector<double> YLb => Data[2];
-        public Vector<double> YUb => Data[3];
-    }
-
     public class InputDataMidRad
     {
         public InputDataMidRad(IEnumerable<double[]> data, InputDataConfiguration configuration)
         {
-            _data = data.Select(x => Vector<double>.Build.DenseOfArray(x)).ToArray();
+            var dataArray = data.ToArray();
+            
+            if(dataArray.Select(d => d.Length).Distinct().Count() != 1)
+                throw new ArgumentException("input data must have same length");
+            
+            _data = dataArray.Select(x => Vector<double>.Build.DenseOfArray(x)).ToArray();
             _configuration = configuration;
         }
 
@@ -180,11 +168,5 @@ namespace ExpCurvFitting.Application.InputData
                 return Vector<double>.Build.Dense(_data.Count, 0);
             }
         }
-    }
-
-    public class InputDataBoundes
-    {
-        private InputDataConfiguration Configuration { get; set; }
-
     }
 }
