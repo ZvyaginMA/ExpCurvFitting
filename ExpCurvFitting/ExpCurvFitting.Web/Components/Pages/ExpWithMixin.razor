@@ -174,9 +174,9 @@ else
     <table class="table">
         <thead>
             <tr>
-                <th>X</th>
-                <th>YMid</th>
-                <th>YRad</th>
+                @foreach(var item in headers){
+                    <th>@item</th>
+                }
                 @if (IsCalc == Status.Done)
                 {
                     <th>Значения образующих</th>
@@ -215,18 +215,20 @@ else
     private bool IsLoading;
     private Status IsCalc = Status.NoStarted;
     private PenatlyOptionsDto? penatlyOptions = null;
+    private TemplateHeadersGenerator _headersGenerator = new ();
     private const string sourse = "exp";
+    private string[] headers;
 
     private bool IsSettingPenatlyOptions;
     private bool IsSettingOptimizationOptions;
     private bool UsePower;
 
-    private readonly InputDataConfiguration _inputDataConfiguration = new InputDataConfiguration()
+    private readonly InputDataConfiguration _inputDataConfiguration = new()
     {
         CountInputVariable = 1,
         IntervalPresentation = IntervalPresentation.MidRad,
         IsIntervalOutput = true,
-        IsIntervalInput = false
+        IsIntervalInput = true
     };
     
     private async Task HandleSelected(InputFileChangeEventArgs e)
@@ -241,6 +243,10 @@ else
             readResult = _excelService.LoadDateFromFile(ms, _inputDataConfiguration);
             _appMetric.IncLoadDone(sourse);
             Log.Logger.Information("Данные прочитаны. Id данных {id} Количество точек {count}", readResult.DataId ,readResult.InputData.YMid.Count);
+            headers = _headersGenerator.Handle(new()
+            {
+                dataConfiguration = _inputDataConfiguration
+            }).Headers.ToArray();
         }
         catch (Exception ex)
         {
