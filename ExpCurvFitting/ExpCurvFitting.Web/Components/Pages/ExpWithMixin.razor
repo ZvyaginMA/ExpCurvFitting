@@ -10,7 +10,7 @@
 @using ExpCurvFitting.Web.Infrastructure
 @inject IExcelService _excelService
 @inject AppMetric _appMetric
-
+@inject IJSRuntime JSRuntime
 
 <PageTitle>Exponents curve fitting</PageTitle>
 
@@ -39,8 +39,12 @@
             <td><input type="number" @bind="numberOfExponents" /></td>
         </tr>
         <tr>
-            <td>Использовать слагаемое x^-2.5</td>
-            <td><input type="checkbox" @bind="UsePower" /></td>
+            <td>Дополнительные линейные слагаемые:</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>$$ f_1 = x^{-2.5}$$</td>
+            <td><input type="checkbox" @bind="UsePower"/></td>
         </tr>
     }
     else if (IsCalc == Status.InProgress)
@@ -83,8 +87,12 @@
             <td><input type="number" @bind="numberOfExponents" /></td>
         </tr>
         <tr>
-            <td>Использовать слагаемое x^-2.5</td>
-            <td><input type="checkbox" @bind="UsePower" /></td>
+            <td>Дополнительные линейные слагаемые:</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>$$ f_1 = x^{-2.5}$$</td>
+            <td><input type="checkbox" @bind="UsePower"/></td>
         </tr>
     }
     <table>
@@ -198,7 +206,6 @@ else
     </table>
 }
 
-
 @code {
     enum Status
     {
@@ -206,7 +213,12 @@ else
         InProgress,
         Done
     };
-
+    
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await JSRuntime.InvokeVoidAsync("MathJax.typeset");
+    }
+    
     private CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
     private int numberOfExponents;
     private Result readResult = null!;
