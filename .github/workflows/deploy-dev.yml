@@ -1,0 +1,29 @@
+name: deploy-dev
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Install sshpass
+      run: sudo apt-get install -y sshpass
+
+    - name: Deploy to VDS
+      run: |
+        TIMESTAMP=$(date +"%Y-%m-%d_%H-%M-%S")
+        sshpass -p "${{ secrets.VDS_PASSWORD }}" ssh -o StrictHostKeyChecking=no -T ${{ secrets.VDS_USER }}@${{ secrets.VDS_HOST }} <<EOF
+          echo "Создание новой папки с меткой времени"
+          sudo mkdir -p /root/expcurv/$TIMESTAMP
+          cd /root/expcurv/$TIMESTAMP || exit
+          echo "Клонирование репозитория"
+          # Добавляем GitHub в known_hosts на сервере VDS
+          git clone https://github.com/ZvyaginMA/ExpCurvFitting.git .
+        EOF
