@@ -10,12 +10,13 @@
 @using ExpCurvFitting.Web.Infrastructure
 @inject IExcelService _excelService
 @inject AppMetric _appMetric
-@inject IJSRuntime JSRuntime
 
 <PageTitle>Exponents curve fitting</PageTitle>
 
 <h1>Восстановление полинома из экспонент</h1>
-<img src="exp_curv_fit.jpg" width="40%" height="40%" />
+<h1>с дополнительными слагаемыми</h1>
+<img src="exp_curv_fit_1403_296.jpg" width="55%" height="55%" />
+<p></p>
 <p>
     <tr>
         <td><InputFile OnChange="HandleSelected" MaxAllowedSize="10485760" /></td>
@@ -27,7 +28,6 @@
         </td>
     </tr>
 </p>
-
 
 @if (readResult is not null)
 {
@@ -43,7 +43,7 @@
             <td></td>
         </tr>
         <tr>
-            <td>$$ f_1 = x^{-2.5}$$</td>
+            <td><img src="f1_242_115.jpg" width="50%" height="50%" /></td>
             <td><input type="checkbox" @bind="UsePower"/></td>
         </tr>
     }
@@ -73,9 +73,9 @@
                     </tr>
                 }
                 @if (UsePower)
-                {
+                {            
                     <tr>
-                        <td>c</td>
+                        <td>c1</td>
                         <td>@($"{modelResult.C[0]:G4}")</td>
                     </tr>
                 }
@@ -91,7 +91,7 @@
             <td></td>
         </tr>
         <tr>
-            <td>$$ f_1 = x^{-2.5}$$</td>
+            <td><img src="f1_242_115.jpg" width="50%" height="50%" /></td>
             <td><input type="checkbox" @bind="UsePower"/></td>
         </tr>
     }
@@ -182,7 +182,7 @@ else
     <table class="table">
         <thead>
             <tr>
-                @foreach(var item in headers){
+                @foreach(var item in _headers){
                     <th>@item</th>
                 }
                 @if (IsCalc == Status.Done)
@@ -214,12 +214,7 @@ else
         Done
     };
     
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        await JSRuntime.InvokeVoidAsync("MathJax.typeset");
-    }
-    
-    private CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
+    private CancellationTokenSource cancellationTokenSource = new ();
     private int numberOfExponents;
     private Result readResult = null!;
     private ExpWithMixinModel.Result modelResult = null!;
@@ -228,8 +223,8 @@ else
     private Status IsCalc = Status.NoStarted;
     private PenatlyOptionsDto? penatlyOptions = null;
     private TemplateHeadersGenerator _headersGenerator = new ();
-    private const string sourse = "exp";
-    private string[] headers;
+    private const string Sourse = "exp";
+    private string[] _headers;
 
     private bool IsSettingPenatlyOptions;
     private bool IsSettingOptimizationOptions;
@@ -247,22 +242,22 @@ else
     {
         try
         {
-            _appMetric.IncLoadStart(sourse);
+            _appMetric.IncLoadStart(Sourse);
             MemoryStream ms = new MemoryStream();
             Log.Logger.Information("Данные загружаются");
             IsLoading = true;
             await e.File.OpenReadStream().CopyToAsync(ms);
             readResult = _excelService.LoadDateFromFile(ms, _inputDataConfiguration);
-            _appMetric.IncLoadDone(sourse);
+            _appMetric.IncLoadDone(Sourse);
             Log.Logger.Information("Данные прочитаны. Id данных {id} Количество точек {count}", readResult.DataId ,readResult.InputData.YMid.Count);
-            headers = _headersGenerator.Handle(new()
+            _headers = _headersGenerator.Handle(new()
             {
                 dataConfiguration = _inputDataConfiguration
             }).Headers.ToArray();
         }
         catch (Exception ex)
         {
-            _appMetric.IncLoadEx(sourse + "_" + ex.GetType().Name);
+            _appMetric.IncLoadEx(Sourse + "_" + ex.GetType().Name);
             Log.Logger.Error("Ошибка при загрузке {ex}", ex);
             IsLoading = false;
         }
@@ -323,7 +318,7 @@ else
             }
             Log.Logger.Information("Расчет запущен для {id}", readResult.DataId);
 
-            _appMetric.IncCalcStart(sourse);
+            _appMetric.IncCalcStart(Sourse);
             
             await expModel.Fit(
                 readResult.InputData.XLb.Single(),
@@ -335,13 +330,13 @@ else
                 cancellationTokenSource.Token);
             modelResult = expModel.GetResult();
             IsCalc = Status.Done;
-            _appMetric.IncCalcDone(sourse);
+            _appMetric.IncCalcDone(Sourse);
             
             Log.Logger.Information("Расчет завершен для {id}. Rmse {rmse}. Время на расчет {time}", readResult.DataId, modelResult.RmseForCenter, modelResult.TimeCalculation);
         }
         catch (Exception ex)
         {
-            _appMetric.IncCalcEx(sourse + "_" + ex.GetType().Name);
+            _appMetric.IncCalcEx(Sourse + "_" + ex.GetType().Name);
 
             Log.Logger.Error("Ошибка {ex} в расчетах для {id}", ex, readResult.DataId);
             IsCalc = Status.NoStarted;

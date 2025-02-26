@@ -15,8 +15,7 @@
 <PageTitle>Polynomials curve fitting</PageTitle>
 
 <h1>Восстановление полинома по интервальным данным</h1>
-<img src="poly.jpg" width="21%">
-
+<img src="poly_690_135.jpg" width="40%" height="40%" />
 <p>
     <tr>
         <td><InputFile OnChange="HandleSelected" MaxAllowedSize="10485760" /></td>
@@ -243,7 +242,10 @@ else
 
     private void SetOptimizationOptions()
     {
-        optimizationOptions = new OptimizationOptions();
+        optimizationOptions = new OptimizationOptions()
+        {
+            CountMultistarts = 5
+        };
         IsSettingOptimizationOptions = true;
     }
 
