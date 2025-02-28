@@ -20,7 +20,7 @@ jobs:
 
       - name: Clone the target private repository
         run: |
-          git clone https://github.com/ZvyaginMA/ExpCurvFitting-Deploy.git
+          git clone https://${{ secrets.GH_TOKEN }}@github.com/ZvyaginMA/ExpCurvFitting-Deploy.git
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
 
