@@ -26,8 +26,9 @@ jobs:
 
       - name: Copy all files to the target private repo
         run: |
-          cp -r ./* ExpCurvFitting-Deploy/
-          cd target-private-repo
+          ls
+          git clone https://github.com/ZvyaginMA/ExpCurvFitting.git .
+          ls
           git add .
           git commit -m "Copy content from current repo"
           git push https://github.com/ZvyaginMA/ExpCurvFitting-Deploy.git
