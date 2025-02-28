@@ -28,6 +28,10 @@ jobs:
         run: |
           ls
           git clone https://github.com/ZvyaginMA/ExpCurvFitting.git .
+          cd ..
+          cp -r ./ExpCurvFitting ./ExpCurvFitting-Deploy/
+          cd ExpCurvFitting-Deploy
+          echo "внутри deploy"
           ls
           git add .
           git commit -m "Copy content from current repo"
