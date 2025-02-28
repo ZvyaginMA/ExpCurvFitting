@@ -3,7 +3,7 @@ name: Copy to private repo
 on:
   push:
     branches:
-      - main  # Или другая ветка, на которую вы хотите реагировать
+      - master  # Или другая ветка, на которую вы хотите реагировать
 
 jobs:
   copy-to-private-repo:
