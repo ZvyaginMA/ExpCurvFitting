@@ -26,7 +26,7 @@ jobs:
 
       - name: Copy all files to the target private repo
         run: |
-          cp -r ./* target-private-repo/
+          cp -r ./* ExpCurvFitting-Deploy/
           cd target-private-repo
           git add .
           git commit -m "Copy content from current repo"
