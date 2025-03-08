@@ -1,0 +1,40 @@
+name: Copy to private repo
+
+on:
+  push:
+    branches:
+      - master  # Или другая ветка, на которую вы хотите реагировать
+
+jobs:
+  copy-to-private-repo:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout current repository
+        uses: actions/checkout@v3
+
+      - name: Set up Git
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "github-actions@github.com"
+
+      - name: Clone the target private repository
+        run: |
+          git clone https://${{ secrets.GH_TOKEN }}@github.com/ZvyaginMA/ExpCurvFitting-Deploy.git
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+
+      - name: Copy all files to the target private repo
+        run: |
+          ls
+          git clone https://github.com/ZvyaginMA/ExpCurvFitting.git .
+          cd ..
+          cp -r ./ExpCurvFitting ./ExpCurvFitting-Deploy/
+          cd ExpCurvFitting-Deploy
+          echo "внутри deploy"
+          ls
+          git add .
+          git commit -m "Copy content from current repo"
+          git push https://github.com/ZvyaginMA/ExpCurvFitting-Deploy.git
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
