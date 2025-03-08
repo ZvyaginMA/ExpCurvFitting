@@ -13,13 +13,15 @@
 
 <PageTitle>Exponents curve fitting</PageTitle>
 
-<h1>Восстановление полинома из экспонент</h1>
+<h1>Восстановление полинома из экспонент </h1>
 <h1>с дополнительными слагаемыми</h1>
-<img src="exp_curv_fit_1403_296.jpg" width="55%" height="55%" />
+<img src="exp_curv_fit_1403_296.jpg" width="55%" height="55%"/>
 <p></p>
 <p>
     <tr>
-        <td><InputFile OnChange="HandleSelected" MaxAllowedSize="10485760" /></td>
+        <td>
+            <InputFile OnChange="HandleSelected" MaxAllowedSize="10485760"/>
+        </td>
         <td>
             @if (readResult is null)
             {
@@ -36,16 +38,23 @@
         <p>Запустите расчет</p>
         <tr>
             <td>Количество экспонент</td>
-            <td><input type="number" @bind="numberOfExponents" /></td>
+            <td><input type="number" @bind="numberOfExponents"/></td>
         </tr>
         <tr>
             <td>Дополнительные слагаемые:</td>
             <td></td>
         </tr>
         <tr>
-            <td><img src="f1_242_115.jpg" width="50%" height="50%" /></td>
+            <td><img src="f1_367_138.jpg" width="50%" height="50%"/></td>
             <td><input type="checkbox" @bind="UsePower"/></td>
         </tr>
+        @if (UsePower)
+        {
+            <tr>
+                <td style="text-align: right">Значение параметра &beta; =</td>
+                <td><input type="text" @bind="PowerValue"/></td>
+            </tr>
+        }
     }
     else if (IsCalc == Status.InProgress)
     {
@@ -59,42 +68,50 @@
         <tr>Время расчета: @($"{modelResult.TimeCalculation:F3} с.")</tr>
         <table class="table">
             <thead>
-                <tr>
-                    <th>a</th>
-                    <th>b</th>
-                </tr>
+            <tr>
+                <th>a</th>
+                <th>b</th>
+            </tr>
             </thead>
             <tbody>
-                @foreach (var item in modelResult.GetPoints())
-                {
-                    <tr>
-                        <td>@($"{item.Item1:G4}")</td>
-                        <td>@($"{item.Item2:G4}")</td>
-                    </tr>
-                }
-                @if (UsePower)
-                {            
-                    <tr>
-                        <td>c1</td>
-                        <td>@($"{modelResult.C[0]:G4}")</td>
-                    </tr>
-                }
+            @foreach (var item in modelResult.GetPoints())
+            {
+                <tr>
+                    <td>@($"{item.Item1:G4}")</td>
+                    <td>@($"{item.Item2:G4}")</td>
+                </tr>
+            }
+            @if (UsePower)
+            {
+                <tr>
+                    <td>c1</td>
+                    <td>@($"{modelResult.C[0]:G4}")</td>
+                </tr>
+            }
             </tbody>
         </table>
 
         <tr>
             <td>Количество экспонент</td>
-            <td><input type="number" @bind="numberOfExponents" /></td>
+            <td><input type="number" @bind="numberOfExponents"/></td>
         </tr>
         <tr>
             <td>Дополнительные слагаемые:</td>
             <td></td>
         </tr>
         <tr>
-            <td><img src="f1_242_115.jpg" width="50%" height="50%" /></td>
+            <td><img src="f1_367_138.jpg" width="50%" height="50%"/></td>
             <td><input type="checkbox" @bind="UsePower"/></td>
         </tr>
+        @if (UsePower)
+        {
+            <tr>
+                <td style="text-align: right">Значение параметра &beta; =</td>
+                <td><input type="text" @bind="PowerValue"/></td>
+            </tr>
+        }
     }
+
     <table>
         <tr>
             <th>
@@ -120,15 +137,15 @@
 {
     <tr>
         <td>Количество запусков</td>
-        <td><input type="text" @bind="optimizationOptions.CountMultistarts" /></td>
+        <td><input type="text" @bind="optimizationOptions.CountMultistarts"/></td>
     </tr>
     <tr>
         <td>Норма градиента</td>
-        <td><input type="text" @bind="optimizationOptions.GradientTolerance" /></td>
+        <td><input type="text" @bind="optimizationOptions.GradientTolerance"/></td>
     </tr>
     <tr>
         <td>Количество шагов оптимизации</td>
-        <td> <input type="text" @bind="optimizationOptions.MaximumIterations" /></td>
+        <td><input type="text" @bind="optimizationOptions.MaximumIterations"/></td>
     </tr>
 }
 
@@ -136,32 +153,32 @@
 {
     <table class="table">
         <thead>
-            <tr>
-                <th>a_lb</th>
-                <th>a_ub</th>
-                <th>b_lb</th>
-                <th>b_ub</th>
-            </tr>
+        <tr>
+            <th>a_lb</th>
+            <th>a_ub</th>
+            <th>b_lb</th>
+            <th>b_ub</th>
+        </tr>
         </thead>
         <tbody>
-            @foreach (var item in penatlyOptions.Items)
-            {
-                <tr>
-                    <td><input type="text" @bind="item.ALb" /></td>
-                    <td><input type="text" @bind="item.AUb" /></td>
-                    <td><input type="text" @bind="item.BLb" /></td>
-                    <td><input type="text" @bind="item.BUb" /></td>
-                </tr>
-            }
-            @if (UsePower)
-            {
-                <tr>
-                    <th>c_lb</th>
-                    <td><input type="text" @bind="penatlyOptions.Items2[0].CLb" /></td>
-                    <th>c_ub </th>
-                    <td><input type="text" @bind="penatlyOptions.Items2[0].CUb" /></td>
-                </tr>
-            }
+        @foreach (var item in penatlyOptions.Items)
+        {
+            <tr>
+                <td><input type="text" @bind="item.ALb"/></td>
+                <td><input type="text" @bind="item.AUb"/></td>
+                <td><input type="text" @bind="item.BLb"/></td>
+                <td><input type="text" @bind="item.BUb"/></td>
+            </tr>
+        }
+        @if (UsePower)
+        {
+            <tr>
+                <th>c_lb</th>
+                <td><input type="text" @bind="penatlyOptions.Items2[0].CLb"/></td>
+                <th>c_ub</th>
+                <td><input type="text" @bind="penatlyOptions.Items2[0].CUb"/></td>
+            </tr>
+        }
         </tbody>
     </table>
 }
@@ -181,40 +198,42 @@ else
 
     <table class="table">
         <thead>
-            <tr>
-                @foreach(var item in _headers){
-                    <th>@item</th>
-                }
-                @if (IsCalc == Status.Done)
-                {
-                    <th>Значения образующих</th>
-                }
-            </tr>
+        <tr>
+            @foreach (var item in _headers)
+            {
+                <th>@item</th>
+            }
+            @if (IsCalc == Status.Done)
+            {
+                <th>Значения образующих</th>
+            }
+        </tr>
         </thead>
         <tbody>
-        
-            @foreach (var items in readResult!.GetPoints(IsCalc == Status.Done ? modelResult.ValueOnGenerators : null))
-            {
-                <tr>
-                    @foreach (var item in items)
-                    {
-                        <td>@item</td>
-                    }
-                </tr>
-            }
+
+        @foreach (var items in readResult!.GetPoints(IsCalc == Status.Done ? modelResult.ValueOnGenerators : null))
+        {
+            <tr>
+                @foreach (var item in items)
+                {
+                    <td>@item</td>
+                }
+            </tr>
+        }
         </tbody>
     </table>
 }
 
 @code {
+
     enum Status
     {
         NoStarted,
         InProgress,
         Done
     };
-    
-    private CancellationTokenSource cancellationTokenSource = new ();
+
+    private CancellationTokenSource cancellationTokenSource = new();
     private int numberOfExponents;
     private Result readResult = null!;
     private ExpWithMixinModel.Result modelResult = null!;
@@ -222,13 +241,14 @@ else
     private bool IsLoading;
     private Status IsCalc = Status.NoStarted;
     private PenatlyOptionsDto? penatlyOptions = null;
-    private TemplateHeadersGenerator _headersGenerator = new ();
+    private TemplateHeadersGenerator _headersGenerator = new();
     private const string Sourse = "exp";
     private string[] _headers;
 
     private bool IsSettingPenatlyOptions;
     private bool IsSettingOptimizationOptions;
     private bool UsePower;
+    private double PowerValue = 0;
 
     private readonly InputDataConfiguration _inputDataConfiguration = new()
     {
@@ -237,7 +257,7 @@ else
         IsIntervalOutput = true,
         IsIntervalInput = true
     };
-    
+
     private async Task HandleSelected(InputFileChangeEventArgs e)
     {
         try
@@ -249,7 +269,7 @@ else
             await e.File.OpenReadStream().CopyToAsync(ms);
             readResult = _excelService.LoadDateFromFile(ms, _inputDataConfiguration);
             _appMetric.IncLoadDone(Sourse);
-            Log.Logger.Information("Данные прочитаны. Id данных {id} Количество точек {count}", readResult.DataId ,readResult.InputData.YMid.Count);
+            Log.Logger.Information("Данные прочитаны. Id данных {id} Количество точек {count}", readResult.DataId, readResult.InputData.YMid.Count);
             _headers = _headersGenerator.Handle(new()
             {
                 dataConfiguration = _inputDataConfiguration
@@ -294,17 +314,19 @@ else
         {
             var mixins = new List<IIntervalExtension>()
             {
-                new MonotonicFunction(UsePower ? (t) => Math.Pow(t, -2.5) : (t) => 0),
+                new MonotonicFunction(UsePower ? (t) => Math.Pow(t, PowerValue) : (t) => 0),
             };
             var expModel = new ExpWithMixinModel(mixins);
-            if (numberOfExponents <= 0)
+            if (numberOfExponents <= 0 && !UsePower)
             {
                 return;
             }
+
             if (penatlyOptions is null || numberOfExponents != penatlyOptions.NumberOfExp)
             {
                 penatlyOptions = new PenatlyOptionsDto(numberOfExponents);
             }
+
             IsCalc = Status.InProgress;
             if (!UsePower)
             {
@@ -313,13 +335,14 @@ else
             }
             else
             {
-                penatlyOptions.Items2[0].CLb = 0;
+                penatlyOptions.Items2[0].CLb = -100;
                 penatlyOptions.Items2[0].CUb = 100;
             }
+
             Log.Logger.Information("Расчет запущен для {id}", readResult.DataId);
 
             _appMetric.IncCalcStart(Sourse);
-            
+
             await expModel.Fit(
                 readResult.InputData.XLb.Single(),
                 readResult.InputData.XUb.Single(),
@@ -331,7 +354,7 @@ else
             modelResult = expModel.GetResult();
             IsCalc = Status.Done;
             _appMetric.IncCalcDone(Sourse);
-            
+
             Log.Logger.Information("Расчет завершен для {id}. Rmse {rmse}. Время на расчет {time}", readResult.DataId, modelResult.RmseForCenter, modelResult.TimeCalculation);
         }
         catch (Exception ex)
@@ -342,4 +365,5 @@ else
             IsCalc = Status.NoStarted;
         }
     }
+
 }
